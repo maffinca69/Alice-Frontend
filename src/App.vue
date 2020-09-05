@@ -98,7 +98,7 @@ export default {
         date = date.toDateString()
       }
 
-      axios.get('/list?date=' + date).then(response => {
+      axios.get('/api/list?date=' + date).then(response => {
         this.items = response.data.data;
       }).finally(() => {
         this.loading = false
@@ -119,7 +119,7 @@ export default {
     },
     fetchRemove(id) {
       this.loading = true
-      return axios.delete('/delete?id=' + id).catch(() => {
+      return axios.delete('/api/delete?id=' + id).catch(() => {
         // todo modal
       }).finally(() => {
         this.loading = false
@@ -134,7 +134,7 @@ export default {
     },
     fetchEdit(item) {
       this.loading = true
-      axios.put('/update', item).then(response => {
+      axios.put('/api/update', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
@@ -151,7 +151,7 @@ export default {
     },
     fetchCreate(item) {
       this.loading = true
-      axios.post('/create', item).then(response => {
+      axios.post('/api/create', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
