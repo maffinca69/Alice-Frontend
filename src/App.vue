@@ -6,10 +6,10 @@
     <v-main>
       <v-data-table :hide-default-footer="true" :headers="headers" :items="items" :loading="loading">
         <template v-slot:item.action="{ item }">
-          <v-btn icon color="red" @click="remove(item)">
+          <v-btn :disabled="loading" icon color="red" @click="remove(item)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
-          <v-btn icon color="primary" @click="edit(item)">
+          <v-btn :disabled="loading" icon color="primary" @click="edit(item)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
         </template>
@@ -22,7 +22,7 @@
       </v-data-table>
 
       <v-layout row justify-start class="ms-4 mt-4">
-        <v-btn class="btn success" @click="add">Добавить</v-btn>
+        <v-btn class="btn success" @click="add" :disabled="loading">Добавить</v-btn>
       </v-layout>
 
       <Modal :item="selectedItem" :show="this.dialog" @save="onSave" @dialog="onDialog"></Modal>
@@ -98,8 +98,9 @@ export default {
         date = date.toDateString()
       }
 
-      axios.get('/api/list?date=' + date).then(response => {
+      axios.get(process.env.VUE_APP_API_URL + '/list?date=' + date).then(response => {
         this.items = response.data.data;
+        this.sortItems()
       }).finally(() => {
         this.loading = false
       })
@@ -119,8 +120,10 @@ export default {
     },
     fetchRemove(id) {
       this.loading = true
-      return axios.delete('/api/delete?id=' + id).catch(() => {
-        // todo modal
+      return axios.delete(process.env.VUE_APP_API_URL + '/delete?id=' + id).catch(() => {
+        this.snackbar = true
+        this.snackbarData.text = 'Ошибка'
+        this.snackbarData.status = 'error'
       }).finally(() => {
         this.loading = false
       })
@@ -132,14 +135,15 @@ export default {
     add() {
       this.createDialog = true
     },
-    fetchEdit(item) {
+    fetchUpdate(item) {
       this.loading = true
-      axios.put('/api/update', item).then(response => {
+      axios.put(process.env.VUE_APP_API_URL + '/update', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
           this.snackbarData.text = 'Расписание обновлено'
           this.snackbarData.status = 'success'
+          this.sortItems()
         }
       }).catch(error => {
         this.snackbar = true
@@ -151,20 +155,22 @@ export default {
     },
     fetchCreate(item) {
       this.loading = true
-      axios.post('/api/create', item).then(response => {
+      axios.post(process.env.VUE_APP_API_URL + '/create', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
           this.snackbarData.text = 'Расписание добавлено'
           this.snackbarData.status = 'success'
+          this.items.push(data.item)
+          this.sortItems()
         }
-        this.items.push(data.item)
       }).catch(error => {
         this.snackbar = true
         this.snackbarData.text = error.error.message
         this.snackbarData.status = 'error'
       }).finally(() => {
         this.loading = false
+        this.createDialog = false
       })
     },
     onSave(obj) {
@@ -177,7 +183,7 @@ export default {
       item.time_start = moment(item.date).set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
       item.time_end = moment(item.date).set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
 
-      this.fetchEdit(item)
+      this.fetchUpdate(item)
     },
 
     onCreate(obj) {
@@ -192,6 +198,11 @@ export default {
       }
 
       this.fetchCreate(item)
+    },
+    sortItems() {
+      this.items.sort((a, b) => {
+        return a.time_start.localeCompare(b.time_start);
+      });
     },
     onDialog(value) {
       this.dialog = value
