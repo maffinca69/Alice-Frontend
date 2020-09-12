@@ -77,9 +77,6 @@
       </v-dialog>
 
     </v-col>
-<!--    <v-col>-->
-<!--      -->
-<!--    </v-col>-->
   </v-row>
 </template>
 
@@ -112,9 +109,11 @@ export default {
   watch: {
     suggestionStart: function (val) {
       this.start = this.suggestions[val]
+      this.saveStart()
     },
     suggestionEnd: function (val) {
       this.end = this.suggestions[val]
+      this.saveEnd()
     }
   },
   methods: {
@@ -125,13 +124,13 @@ export default {
       });
     },
     saveStart() {
-      this.$refs.endDialog.save(this.end)
-      this.startModal = false
+      this.endModal = false
+      this.$refs.startDialog.save(this.start)
       this.save()
     },
     saveEnd() {
-      this.endModal = false
-      this.$refs.startDialog.save(this.start)
+      this.$refs.endDialog.save(this.end)
+      this.startModal = false
       this.save()
     }
   }
