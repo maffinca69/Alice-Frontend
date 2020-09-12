@@ -10,26 +10,29 @@
 
       <v-divider></v-divider>
 
-      <v-text-field
-          class="ms-6 me-6"
-          placeholder="Название урока"
-          v-model="name">
-      </v-text-field>
+      <v-form ref="form">
+        <v-text-field
+            class="ms-6 me-6"
+            :rules="[ rules.required(name) ]"
+            placeholder="Название урока"
+            v-model="name">
+        </v-text-field>
 
-      <v-card-text>
-        <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
-      </v-card-text>
+        <div class="ms-6 me-6">
+          <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
+        </div>
 
-      <v-textarea
-          class="ms-6 me-6"
-          rows="3"
-          outlined
-          :rules="[ rules.maxLength(255) ]"
-          length="12"
-          counter
-          placeholder="Домашнее задание (не обязательно)"
-          v-model="homework">
-      </v-textarea>
+        <v-textarea
+            class="ms-6 me-6"
+            rows="3"
+            outlined
+            :rules="[ rules.maxLength(255) ]"
+            length="12"
+            counter
+            placeholder="Домашнее задание (не обязательно)"
+            v-model="homework">
+        </v-textarea>
+      </v-form>
 
 
       <v-divider></v-divider>
@@ -83,8 +86,12 @@ export default {
     closeDialog() {
       this.dialog = false
       this.$emit('destroy')
+      this.$refs.form.reset()
     },
     create() {
+      if (!this.$refs.form.validate()) {
+        return
+      }
       this.dialog = false
       if (this.end === this.timeObject.end && this.start === this.timeObject.start) {
         return
@@ -94,6 +101,7 @@ export default {
         homework: this.homework,
         time: this.timeObject
       })
+      this.$refs.form.reset()
     },
     onSave(obj) {
       this.timeObject = obj;

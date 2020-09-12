@@ -110,7 +110,6 @@ export default {
       }
       this.$axios.get('/list?date=' + date).then(response => {
         this.items = response.data.data;
-        console.log(this.items)
         this.sortItems()
       }).finally(() => {
         this.loading = false
@@ -217,10 +216,8 @@ export default {
       });
     },
     viewItem(item) {
-      console.log(item.homework)
       this.selectedItem = item
       this.detailsDialog = true
-      // console.log(item)
     },
     onDialog(value) {
       this.dialog = value

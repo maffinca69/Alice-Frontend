@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row>
+    <v-row no-gutters>
       <v-col>
         <v-dialog
             ref="startDialog"
@@ -14,14 +14,20 @@
                 label="Начало"
                 prepend-icon="mdi-clock"
                 readonly
+                :rules="[ rules.required(start) ]"
                 v-bind="attrs"
                 v-on="on"
             ></v-text-field>
             <v-chip-group
-                v-model="suggestionStart"
+                v-model="start"
                 active-class="deep-blue--text text--accent-4"
             >
-              <v-chip v-for="item in suggestionsStart" :key="item" small>
+              <v-chip
+                  v-for="item in suggestionsStart"
+                  :key="item"
+                  small
+                  outlined
+                  :value="item">
                 {{ item }}
               </v-chip>
             </v-chip-group>
@@ -39,7 +45,7 @@
         </v-dialog>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row no-gutters>
       <v-col>
         <v-dialog
             ref="endDialog"
@@ -53,14 +59,20 @@
                 label="Окончание"
                 prepend-icon="mdi-clock"
                 readonly
+                :rules="[ rules.required(end) ]"
                 v-bind="attrs"
                 v-on="on"
             ></v-text-field>
             <v-chip-group
-                v-model="suggestionEnd"
+                v-model="end"
                 active-class="deep-blue--text text--accent-4"
             >
-              <v-chip v-for="item in suggestionsEnd" :key="item" small>
+              <v-chip
+                  v-for="item in suggestionsEnd"
+                  :key="item"
+                  small
+                  outlined
+                  :value="item">
                 {{ item }}
               </v-chip>
             </v-chip-group>
@@ -87,6 +99,7 @@
 <script>
 import dates from "@/utils/dates";
 import moment from 'moment'
+import rules from "@/utils/rules";
 
 export default {
   name: "TimePicker",
@@ -94,32 +107,33 @@ export default {
   mounted() {
     this.end = this.endTime ? dates.formattedDateToTime(this.endTime) : null
     this.start = this.startTime ? dates.formattedDateToTime(this.startTime) : null
+    this.suggestionsEnd = [];
   },
   data: () => ({
+    rules,
     time: null,
     menu2: false,
     end: null,
     start: null,
     startModal: false,
     endModal: false,
-    suggestionStart: null,
-    suggestionEnd: null,
     suggestionsStart: [
       '08:20',
       '09:20',
       '10:10',
+      '11:05',
       '12:00',
     ],
     suggestionsEnd: [] // recount
   }),
   watch: {
-    suggestionStart: function (val) {
-      this.start = this.suggestionsStart[val]
-      this.recountSuggestionsEndTime();
+    start: function(val) {
       this.saveStart()
+      if (val) {
+        this.recountSuggestionsEndTime(val);
+      }
     },
-    suggestionEnd: function (val) {
-      this.end = this.suggestionsEnd[val]
+    end: function () {
       this.saveEnd()
     }
   },
@@ -140,14 +154,15 @@ export default {
       this.startModal = false
       this.save()
     },
-    recountSuggestionsEndTime() {
+    recountSuggestionsEndTime(val) {
+      this.suggestionsEnd = []
       let arr = [];
       let lastTime = null;
       let format = 'HH:mm'
 
       // 5 уроков
-      for (let i = 0; i <= 5; i++) {
-        let time = moment(lastTime || this.start, format)
+      for (let i = 0; i < 5; i++) {
+        let time = moment(lastTime || val, format)
             .add(40, 'minutes') // 40 - время урока
             .format('HH:mm')
         lastTime = time;
