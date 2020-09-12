@@ -50,7 +50,6 @@
 
 <script>
 import Header from "@/components/Header";
-import axios from 'axios';
 import Modal from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
 import dates from "@/helpers/dates";
@@ -97,8 +96,7 @@ export default {
       } else {
         date = date.toDateString()
       }
-
-      axios.get(process.env.VUE_APP_API_URL + '/list?date=' + date).then(response => {
+      this.$axios.get('/list?date=' + date).then(response => {
         this.items = response.data.data;
         this.sortItems()
       }).finally(() => {
@@ -120,7 +118,7 @@ export default {
     },
     fetchRemove(id) {
       this.loading = true
-      return axios.delete(process.env.VUE_APP_API_URL + '/delete?id=' + id).catch(() => {
+      return this.$axios.delete('/delete?id=' + id).catch(() => {
         this.snackbar = true
         this.snackbarData.text = 'Ошибка'
         this.snackbarData.status = 'error'
@@ -137,7 +135,7 @@ export default {
     },
     fetchUpdate(item) {
       this.loading = true
-      axios.put(process.env.VUE_APP_API_URL + '/update', item).then(response => {
+      this.$axios.put('/update', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
@@ -155,7 +153,7 @@ export default {
     },
     fetchCreate(item) {
       this.loading = true
-      axios.post(process.env.VUE_APP_API_URL + '/create', item).then(response => {
+      this.$axios.post('/create', item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
