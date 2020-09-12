@@ -12,6 +12,12 @@
           <v-btn :disabled="loading" icon color="primary" @click="edit(item)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
+          <v-btn :disabled="loading" icon color="green" @click="viewItem(item)">
+            <v-icon>mdi-eye</v-icon>
+          </v-btn>
+        </template>
+        <template v-slot:item.homework="{ item }">
+          <td>{{ textHelper.trimmedText(item.homework || '', 65) }}</td>
         </template>
         <template v-slot:item.time_start="{ item }">
           <td>{{ dates.formattedDateToTime(item.time_start) }}</td>
@@ -27,6 +33,7 @@
 
       <Modal :item="selectedItem" :show="this.dialog" @save="onSave" @dialog="onDialog"></Modal>
       <ModalCreate :date-for-create="selectedDate" :show="this.createDialog" @destroy="onDestroyCreateDialog" @create="onCreate" @dialog="onDialog"></ModalCreate>
+      <ModalDetails :item="this.selectedItem" :show="this.detailsDialog" @destroy="onDestroyDetailsDialog"></ModalDetails>
 
       <v-snackbar
           v-model="snackbar"
@@ -54,10 +61,13 @@ import Modal from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
 import dates from "@/helpers/dates";
 import moment from 'moment'
+import ModalDetails from "@/components/Modals/ModalDetails";
+import text from "@/helpers/text";
 
 export default {
   name: 'App',
   components: {
+    ModalDetails,
     Modal,
     ModalCreate,
     Header
@@ -69,12 +79,14 @@ export default {
     selectedDate: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
     dialog: false,
     createDialog: false,
+    detailsDialog: false,
     snackbar: false,
     snackbarData: {
       text: null,
       status: 'error'
     },
     dates: dates,
+    textHelper: text,
     selectedItem: null,
     loading: false,
     headers: [
@@ -98,6 +110,7 @@ export default {
       }
       this.$axios.get('/list?date=' + date).then(response => {
         this.items = response.data.data;
+        console.log(this.items)
         this.sortItems()
       }).finally(() => {
         this.loading = false
@@ -203,15 +216,20 @@ export default {
         return moment.utc(a.time_start).diff(moment.utc(b.time_start))
       });
     },
-    viewItem() {
-      console.log('ad')
+    viewItem(item) {
+      console.log(item.homework)
+      this.selectedItem = item
+      this.detailsDialog = true
+      // console.log(item)
     },
-
     onDialog(value) {
       this.dialog = value
     },
     onDestroyCreateDialog() {
       this.createDialog = false
+    },
+    onDestroyDetailsDialog() {
+      this.detailsDialog = false
     },
     onReload(date) {
       if (date === null) {
