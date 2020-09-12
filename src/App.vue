@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <Header @date-change="onReload" />
+    <Header @date-change="onReload" :title="title" />
 
     <v-main class="mt-1">
       <v-data-table :hide-default-footer="true" :headers="headers" :items="items" :loading="loading">
@@ -17,7 +17,7 @@
           </v-btn>
         </template>
         <template v-slot:item.homework="{ item }">
-          <td>{{ textHelper.trimmedText(item.homework || '', 65) }}</td>
+          <td>{{ text.trimmedText(item.homework || '', 65) }}</td>
         </template>
         <template v-slot:item.time_start="{ item }">
           <td>{{ dates.formattedDateToTime(item.time_start) }}</td>
@@ -28,7 +28,17 @@
       </v-data-table>
 
       <v-layout row justify-start class="ms-4 mt-4 mb-4">
+        <v-btn class="btn primary me-2" @click="previousDay" :disabled="loading" icon>
+          <v-icon color="white">
+            mdi-chevron-left
+          </v-icon>
+        </v-btn>
         <v-btn class="btn success" @click="add" :disabled="loading">Добавить</v-btn>
+        <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
+          <v-icon color="white">
+            mdi-chevron-right
+          </v-icon>
+        </v-btn>
       </v-layout>
 
       <Modal :item="selectedItem" :show="this.dialog" @save="onSave" @dialog="onDialog"></Modal>
@@ -76,6 +86,9 @@ export default {
     this.load()
   },
   data: () => ({
+    dates,
+    text,
+    title: dates.currentDayName(),
     selectedDate: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
     dialog: false,
     createDialog: false,
@@ -85,20 +98,16 @@ export default {
       text: null,
       status: 'error'
     },
-    dates: dates,
-    textHelper: text,
     selectedItem: null,
     loading: false,
     headers: [
       { text: 'Урок', value: 'name', width: 300 },
-      { text: 'Начало', value: 'time_start', width: 70 },
-      { text: 'Окончание', value: 'time_end', width: 70 },
+      { text: 'Начало', value: 'time_start', width: 100 },
+      { text: 'Окончание', value: 'time_end', width: 120 },
       { text: 'Домашнее задание', value: 'homework' },
       { text: 'Действия', value: 'action', sortable: false, align: 'center', width: 300 },
     ],
-    items: [
-
-    ]
+    items: []
   }),
   methods: {
     load(date) {
@@ -235,6 +244,20 @@ export default {
 
       this.selectedDate = date
       this.load(new Date(date))
+    },
+    previousDay() {
+      const yesterday = new Date(this.selectedDate)
+      yesterday.setDate(yesterday.getDate() - 1)
+      this.selectedDate = yesterday
+      this.title = yesterday
+      this.load(yesterday)
+    },
+    nextDay() {
+      const tomorrow = new Date(this.selectedDate)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      this.selectedDate = tomorrow
+      this.title = tomorrow
+      this.load(tomorrow)
     }
   }
 };

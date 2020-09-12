@@ -42,9 +42,17 @@
 
 <script>
 import dates from "@/utils/dates";
+import moment from 'moment'
 
 export default {
   name: "Header",
+  props: ['title'],
+  watch: {
+    title: function (val) {
+      this.currentDay = dates.currentDayName(val)
+      this.date = moment(val).format('YYYY-MM-DD')
+    }
+  },
   data: () => ({
     menu: false,
     date: null,
@@ -53,7 +61,7 @@ export default {
   methods: {
     load() {
       this.$refs.menu.save(this.date)
-      this.currentDay = dates.currentDayName(this.date),
+      this.currentDay = dates.currentDayName(this.date)
       this.$emit('date-change', this.date)
     }
   }
