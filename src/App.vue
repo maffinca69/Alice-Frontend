@@ -199,7 +199,7 @@ export default {
     },
     sortItems() {
       this.items.sort((a, b) => {
-        return a.time_start.localeCompare(b.time_start);
+        return moment.utc(a.time_start).diff(moment.utc(b.time_start))
       });
     },
     onDialog(value) {
