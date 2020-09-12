@@ -1,36 +1,54 @@
 <template>
-  <div class="text-center">
-    <v-dialog
-        width="500"
-        v-model="dialog"
-    >
+  <v-dialog v-model="dialog" width="500">
 
-      <v-card>
-        <v-card-title class="headline grey lighten-2" >
-          {{ name }}
-        </v-card-title>
+    <v-card>
+      <v-app-bar color="primary" dark elevation="0">
+        <v-toolbar-title class="font-weight-bold">
+          {{ name || 'Название урока' }}
+        </v-toolbar-title>
+      </v-app-bar>
 
-        <v-text-field class="ms-7 me-15 pt-9" placeholder="Название урока" v-model="name"></v-text-field>
+      <v-divider></v-divider>
 
-        <v-card-text>
-          <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
-        </v-card-text>
+      <v-text-field
+          class="ms-6 me-6"
+          placeholder="Название урока"
+          v-model="name">
+      </v-text-field>
 
-        <v-divider></v-divider>
+      <v-card-text>
+        <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
+      </v-card-text>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-              color="primary"
-              text
-              @click="closeDialog()"
-          >
-            Сохранить
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+      <v-textarea
+          class="ms-6 me-6"
+          rows="5"
+          filled
+          counter
+          placeholder="Домашнее задание (не обязательно)"
+          v-model="homework">
+      </v-textarea>
+
+
+      <v-divider></v-divider>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+            color="red"
+            text
+            @click="closeDialog()">
+          Закрыть
+        </v-btn>
+        <v-btn
+            color="primary"
+            text
+            @click="create()">
+          Сохранить
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -61,11 +79,16 @@ export default {
   methods: {
     closeDialog() {
       this.dialog = false
+      this.$emit('destroy')
+    },
+    create() {
+      this.dialog = false
       if (this.end === this.timeObject.end && this.start === this.timeObject.start) {
         return
       }
       this.$emit('create', {
         name: this.name,
+        homework: this.homework,
         time: this.timeObject
       })
     },
@@ -75,6 +98,7 @@ export default {
   },
   data: () => ({
     name: null,
+    homework: null,
     timeObject: null,
     dialog: false,
     start: null,

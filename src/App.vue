@@ -3,7 +3,7 @@
 
     <Header @date-change="onReload" />
 
-    <v-main>
+    <v-main class="mt-1">
       <v-data-table :hide-default-footer="true" :headers="headers" :items="items" :loading="loading">
         <template v-slot:item.action="{ item }">
           <v-btn :disabled="loading" icon color="red" @click="remove(item)">
@@ -78,11 +78,11 @@ export default {
     selectedItem: null,
     loading: false,
     headers: [
-      { text: 'Урок', value: 'name' },
-      { text: 'Начало', value: 'time_start' },
-      { text: 'Окончание', value: 'time_end' },
-      { text: 'Учитель', value: 'teacher' },
-      { text: 'Действия', value: 'action', sortable: false, align: 'center' },
+      { text: 'Урок', value: 'name', width: 300 },
+      { text: 'Начало', value: 'time_start', width: 70 },
+      { text: 'Окончание', value: 'time_end', width: 70 },
+      { text: 'Домашнее задание', value: 'homework' },
+      { text: 'Действия', value: 'action', sortable: false, align: 'center', width: 300 },
     ],
     items: [
 
@@ -192,6 +192,7 @@ export default {
         time_start: moment().set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss'),
         time_end: moment().set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss'),
         name: obj.name,
+        homework: obj.homework,
         date: this.selectedDate
       }
 

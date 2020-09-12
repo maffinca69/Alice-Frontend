@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col cols="11">
+    <v-col>
       <v-dialog
           ref="startDialog"
           v-model="startModal"
@@ -24,10 +24,12 @@
             full-width
         >
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="startModal = false">Cancel</v-btn>
+          <v-btn text color="red" @click="startModal = false">Закрыть</v-btn>
           <v-btn text color="primary" @click="saveStart">OK</v-btn>
         </v-time-picker>
       </v-dialog>
+    </v-col>
+    <v-col>
       <v-dialog
           ref="endDialog"
           v-model="endModal"
@@ -51,7 +53,7 @@
             full-width
         >
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="endModal = false">Cancel</v-btn>
+          <v-btn text color="red" @click="endModal = false">Закрыть</v-btn>
           <v-btn text color="primary" @click="saveEnd">OK</v-btn>
         </v-time-picker>
       </v-dialog>
