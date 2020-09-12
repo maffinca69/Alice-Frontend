@@ -48,8 +48,6 @@ export default {
   data: () => ({
     menu: false,
     date: null,
-    modal: false,
-    picker: null,
     currentDay: dates.currentDayName(),
   }),
   methods: {

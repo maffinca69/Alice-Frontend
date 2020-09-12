@@ -53,6 +53,8 @@ export default {
     dialog: function(val) {
       if (!val) {
         this.$emit('dialog', val)
+      } else {
+        this.$emit('destroy')
       }
     }
   },

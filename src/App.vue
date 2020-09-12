@@ -26,7 +26,7 @@
       </v-layout>
 
       <Modal :item="selectedItem" :show="this.dialog" @save="onSave" @dialog="onDialog"></Modal>
-      <ModalCreate :date-for-create="selectedDate" :show="this.createDialog" @create="onCreate" @dialog="onDialog"></ModalCreate>
+      <ModalCreate :date-for-create="selectedDate" :show="this.createDialog" @destroy="onDestroyCreateDialog" @create="onCreate" @dialog="onDialog"></ModalCreate>
 
       <v-snackbar
           v-model="snackbar"
@@ -204,6 +204,9 @@ export default {
     },
     onDialog(value) {
       this.dialog = value
+    },
+    onDestroyCreateDialog() {
+      this.createDialog = false
     },
     onReload(date) {
       if (date === null) {
