@@ -16,6 +16,14 @@
               v-bind="attrs"
               v-on="on"
           ></v-text-field>
+          <v-chip-group
+              v-model="suggestionStart"
+              active-class="deep-blue--text text--accent-4"
+          >
+            <v-chip v-for="item in suggestions" :key="item" small>
+              {{ item }}
+            </v-chip>
+          </v-chip-group>
         </template>
         <v-time-picker
             format="24hr"
@@ -45,6 +53,14 @@
               v-bind="attrs"
               v-on="on"
           ></v-text-field>
+          <v-chip-group
+              v-model="suggestionEnd"
+              active-class="deep-blue--text text--accent-4"
+          >
+            <v-chip v-for="item in suggestions" :key="item" small>
+              {{ item }}
+            </v-chip>
+          </v-chip-group>
         </template>
         <v-time-picker
             format="24hr"
@@ -53,16 +69,22 @@
             full-width
         >
           <v-spacer></v-spacer>
+
           <v-btn text color="red" @click="endModal = false">Закрыть</v-btn>
           <v-btn text color="primary" @click="saveEnd">OK</v-btn>
         </v-time-picker>
+
       </v-dialog>
+
     </v-col>
+<!--    <v-col>-->
+<!--      -->
+<!--    </v-col>-->
   </v-row>
 </template>
 
 <script>
-import dates from "@/helpers/dates";
+import dates from "@/utils/dates";
 
 export default {
   name: "TimePicker",
@@ -78,7 +100,23 @@ export default {
     start: null,
     startModal: false,
     endModal: false,
+    suggestionStart: null,
+    suggestionEnd: null,
+    suggestions: [
+      '08:20',
+      '09:20',
+      '10:10',
+      '12:00',
+    ]
   }),
+  watch: {
+    suggestionStart: function (val) {
+      this.start = this.suggestions[val]
+    },
+    suggestionEnd: function (val) {
+      this.end = this.suggestions[val]
+    }
+  },
   methods: {
     save() {
       this.$emit('save', {

@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import dates from "@/helpers/dates";
+import dates from "@/utils/dates";
 
 export default {
   name: "Header",

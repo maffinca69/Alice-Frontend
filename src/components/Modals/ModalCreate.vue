@@ -22,8 +22,10 @@
 
       <v-textarea
           class="ms-6 me-6"
-          rows="5"
-          filled
+          rows="3"
+          outlined
+          :rules="[ rules.maxLength(12) ]"
+          length="12"
           counter
           placeholder="Домашнее задание (не обязательно)"
           v-model="homework">
@@ -53,6 +55,7 @@
 
 <script>
 import TimePicker from "@/components/TimePicker";
+import rules from '@/utils/rules';
 
 export default {
   name: "Modal",
@@ -103,7 +106,8 @@ export default {
     dialog: false,
     start: null,
     end: null,
-    date: null
+    date: null,
+    rules,
   })
 }
 </script>

@@ -59,10 +59,10 @@
 import Header from "@/components/Header";
 import Modal from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
-import dates from "@/helpers/dates";
+import dates from "@/utils/dates";
 import moment from 'moment'
 import ModalDetails from "@/components/Modals/ModalDetails";
-import text from "@/helpers/text";
+import text from "@/utils/text";
 
 export default {
   name: 'App',
