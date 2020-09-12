@@ -21,7 +21,7 @@
         </template>
       </v-data-table>
 
-      <v-layout row justify-start class="ms-4 mt-4">
+      <v-layout row justify-start class="ms-4 mt-4 mb-4">
         <v-btn class="btn success" @click="add" :disabled="loading">Добавить</v-btn>
       </v-layout>
 
@@ -203,6 +203,10 @@ export default {
         return moment.utc(a.time_start).diff(moment.utc(b.time_start))
       });
     },
+    viewItem() {
+      console.log('ad')
+    },
+
     onDialog(value) {
       this.dialog = value
     },
