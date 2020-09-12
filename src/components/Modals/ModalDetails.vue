@@ -7,7 +7,7 @@
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="closeDialog">
-          <v-icon>mdi-close</v-icon><!--TODO: проверить-->
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
       <v-divider></v-divider>
@@ -29,7 +29,8 @@
         </v-row>
         <v-row>
           <v-col>
-            <span class="font-weight-bold">Домашнее задание: </span>{{ item.homework || 'нет' }} <!--TODO: доделать перенос строк-->
+            <span class="font-weight-bold">Домашнее задание: </span>
+            <pre>{{ item.homework }}</pre>
           </v-col>
         </v-row>
       </div>
