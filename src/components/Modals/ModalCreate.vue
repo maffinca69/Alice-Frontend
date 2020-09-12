@@ -24,7 +24,7 @@
           class="ms-6 me-6"
           rows="3"
           outlined
-          :rules="[ rules.maxLength(12) ]"
+          :rules="[ rules.maxLength(255) ]"
           length="12"
           counter
           placeholder="Домашнее задание (не обязательно)"
