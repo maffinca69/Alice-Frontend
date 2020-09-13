@@ -158,6 +158,7 @@ export default {
           this.snackbarData.text = 'Расписание обновлено'
           this.snackbarData.status = 'success'
           this.sortItems()
+          this.selectedItem = null
         }
       }).finally(() => this.loading = false)
     },
