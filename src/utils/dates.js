@@ -1,11 +1,6 @@
 export default {
     currentDayName(val) {
-        let date = null;
-        if (val) {
-            date = new Date(val);
-        } else {
-            date = new Date();
-        }
+        let date = val ? new Date(val) : new Date();
         return date.toLocaleString("default", { weekday: "long" });
     },
 
