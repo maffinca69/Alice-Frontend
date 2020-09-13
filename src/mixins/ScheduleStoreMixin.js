@@ -29,7 +29,6 @@ export default {
     methods: {
         closeDialog() {
             this.dialog = false
-            this.$refs.form.reset()
         },
         create() {
             if (!this.$refs.form.validate()) {
@@ -44,7 +43,6 @@ export default {
                 homework: this.homework,
                 time: this.timeObject
             })
-            this.$refs.form.reset()
         },
         onSave(obj) {
             this.timeObject = obj;
