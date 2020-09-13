@@ -6,10 +6,10 @@
     <v-main class="mt-1">
       <v-data-table :hide-default-footer="true" :headers="headers" :items="items" :loading="loading">
         <template v-slot:item.action="{ item }">
-          <v-btn :disabled="loading" icon color="red" @click="remove(item)">
+          <v-btn :disabled="loading" icon color="red" @click="onClickDeleteBtn(item)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
-          <v-btn :disabled="loading" icon color="primary" @click="edit(item)">
+          <v-btn :disabled="loading" icon color="primary" @click="onClickEditBtn(item)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
           <v-btn :disabled="loading" icon color="green" @click="viewItem(item)">
@@ -33,7 +33,7 @@
             mdi-chevron-left
           </v-icon>
         </v-btn>
-        <v-btn class="btn success" @click="add" :disabled="loading">Добавить</v-btn>
+        <v-btn class="btn success" @click="onClickAddBtn" :disabled="loading">Добавить</v-btn>
         <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
           <v-icon color="white">
             mdi-chevron-right
@@ -41,9 +41,23 @@
         </v-btn>
       </v-layout>
 
-      <Modal :item="selectedItem" :show="this.dialog" @save="onSave" @dialog="onDialog"></Modal>
-      <ModalCreate :date-for-create="selectedDate" :show="this.createDialog" @destroy="onDestroyCreateDialog" @create="onCreate" @dialog="onDialog"></ModalCreate>
-      <ModalDetails :item="this.selectedItem" :show="this.detailsDialog" @destroy="onDestroyDetailsDialog"></ModalDetails>
+      <ModalEdit
+          :show="this.editDialog"
+          :item="this.selectedItem"
+          @destroy="onDestroyEditDialog"
+          @submit="onUpdate">
+      </ModalEdit>
+      <ModalCreate
+          :date-for-create="selectedDate"
+          :show="this.createDialog"
+          @destroy="onDestroyCreateDialog"
+          @submit="onCreate">
+      </ModalCreate>
+      <ModalDetails
+          :item="this.selectedItem"
+          :show="this.detailsDialog"
+          @destroy="onDestroyDetailsDialog">
+      </ModalDetails>
 
       <v-snackbar
           v-model="snackbar"
@@ -67,21 +81,25 @@
 
 <script>
 import Header from "@/components/Header";
-import Modal from "@/components/Modals/ModalEdit";
+import ModalEdit from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
 import dates from "@/utils/dates";
 import moment from 'moment'
 import ModalDetails from "@/components/Modals/ModalDetails";
 import text from "@/utils/text";
+import API from "@/plugins/API";
 
 export default {
   name: 'App',
   components: {
     ModalDetails,
-    Modal,
+    ModalEdit,
     ModalCreate,
     Header
   },
+  mixins: [
+      API
+  ],
   mounted() {
     this.load()
   },
@@ -90,7 +108,7 @@ export default {
     text,
     title: dates.currentDayName(),
     selectedDate: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
-    dialog: false,
+    editDialog: false,
     createDialog: false,
     detailsDialog: false,
     snackbar: false,
@@ -111,52 +129,29 @@ export default {
   }),
   methods: {
     load(date) {
+      let dateLoading = date === undefined ? (new Date()).toDateString() : date.toDateString()
+
       this.loading = true
-      if (date === undefined) {
-        date = (new Date()).toDateString()
-      } else {
-        date = date.toDateString()
-      }
-      this.$axios.get('/list?date=' + date).then(response => {
+      API.fetchGet(dateLoading).then(response => {
         this.items = response.data.data;
         this.sortItems()
-      }).finally(() => {
-        this.loading = false
-      })
+      }).finally(() => this.loading = false)
     },
-    remove(item) {
-      this.fetchRemove(item.id).then(response => {
-        let data = response.data;
-        if (data.status) {
-          let index = this.items.indexOf(item)
-          this.items.splice(index, 1);
-          this.snackbar = true
-          this.snackbarData.text = 'Расписание удалено'
-          this.snackbarData.status = 'success'
-        }
 
-      })
-    },
-    fetchRemove(id) {
+    onUpdate(obj) {
+      let index = this.items.indexOf(this.selectedItem);
+      let item = this.items[index];
+
+      let startSplit = obj.time.start.split(':');
+      let endSplit = obj.time.end.split(':');
+
+      item.time_start = moment(item.date).set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
+      item.time_end = moment(item.date).set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
+      item.name = obj.name
+      item.homework = obj.homework
+
       this.loading = true
-      return this.$axios.delete('/delete?id=' + id).catch(() => {
-        this.snackbar = true
-        this.snackbarData.text = 'Ошибка'
-        this.snackbarData.status = 'error'
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    edit(item) {
-      this.dialog = true
-      this.selectedItem = item
-    },
-    add() {
-      this.createDialog = true
-    },
-    fetchUpdate(item) {
-      this.loading = true
-      this.$axios.put('/update', item).then(response => {
+      API.fetchUpdate(item).then(response => {
         let data = response.data;
         if (data.status) {
           this.snackbar = true
@@ -164,45 +159,7 @@ export default {
           this.snackbarData.status = 'success'
           this.sortItems()
         }
-      }).catch(error => {
-        this.snackbar = true
-        this.snackbarData.text = error.error.message
-        this.snackbarData.status = 'error'
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    fetchCreate(item) {
-      this.loading = true
-      this.$axios.post('/create', item).then(response => {
-        let data = response.data;
-        if (data.status) {
-          this.snackbar = true
-          this.snackbarData.text = 'Расписание добавлено'
-          this.snackbarData.status = 'success'
-          this.items.push(data.item)
-          this.sortItems()
-        }
-      }).catch(error => {
-        this.snackbar = true
-        this.snackbarData.text = error.error.message
-        this.snackbarData.status = 'error'
-      }).finally(() => {
-        this.loading = false
-        this.createDialog = false
-      })
-    },
-    onSave(obj) {
-      let index = this.items.indexOf(this.selectedItem);
-      let item = this.items[index];
-
-      let startSplit = obj.start.split(':');
-      let endSplit = obj.end.split(':');
-
-      item.time_start = moment(item.date).set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
-      item.time_end = moment(item.date).set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
-
-      this.fetchUpdate(item)
+      }).finally(() => this.loading = false)
     },
 
     onCreate(obj) {
@@ -214,10 +171,24 @@ export default {
         time_end: moment().set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss'),
         name: obj.name,
         homework: obj.homework,
-        date: this.selectedDate
+        date: moment(this.selectedDate).format('YYYY-MM-DD HH:mm:ss')
       }
 
-      this.fetchCreate(item)
+      this.loading = true
+      API.fetchCreate(item).then(response => {
+        let data = response.data;
+        if (data.status) {
+          this.snackbar = true
+          this.snackbarData.text = 'Расписание добавлено'
+          this.snackbarData.status = 'success'
+
+          this.items.push(data.item)
+          this.sortItems()
+        }
+      }).finally(() => {
+        this.loading = false
+        this.createDialog = false
+      })
     },
     sortItems() {
       this.items.sort((a, b) => {
@@ -227,23 +198,6 @@ export default {
     viewItem(item) {
       this.selectedItem = item
       this.detailsDialog = true
-    },
-    onDialog(value) {
-      this.dialog = value
-    },
-    onDestroyCreateDialog() {
-      this.createDialog = false
-    },
-    onDestroyDetailsDialog() {
-      this.detailsDialog = false
-    },
-    onReload(date) {
-      if (date === null) {
-        return
-      }
-
-      this.selectedDate = date
-      this.load(new Date(date))
     },
     previousDay() {
       const yesterday = new Date(this.selectedDate)
@@ -258,7 +212,44 @@ export default {
       this.selectedDate = tomorrow
       this.title = tomorrow
       this.load(tomorrow)
-    }
+    },
+    onClickEditBtn(item) {
+      this.editDialog = true
+      this.selectedItem = item
+    },
+    onClickAddBtn() {
+      this.createDialog = true
+    },
+    onClickDeleteBtn(item) {
+      this.loading = true
+      API.fetchDelete(item.id).then(response => {
+        let data = response.data;
+        if (data.status) {
+          let index = this.items.indexOf(item)
+          this.items.splice(index, 1);
+          this.snackbar = true
+          this.snackbarData.text = 'Расписание удалено'
+          this.snackbarData.status = 'success'
+        }
+      }).finally(() => this.loading = false)
+    },
+    onDestroyCreateDialog() {
+      this.createDialog = false
+    },
+    onDestroyDetailsDialog() {
+      this.detailsDialog = false
+    },
+    onDestroyEditDialog() {
+      this.editDialog = false
+    },
+    onReload(date) {
+      if (date === null) {
+        return
+      }
+
+      this.selectedDate = date
+      this.load(new Date(date))
+    },
   }
 };
 </script>

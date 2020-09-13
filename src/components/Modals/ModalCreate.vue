@@ -57,66 +57,12 @@
 </template>
 
 <script>
-import TimePicker from "@/components/TimePicker";
-import rules from '@/utils/rules';
+import ScheduleStore from "@/mixins/ScheduleStoreMixin";
 
 export default {
-  name: "Modal",
-  components: {TimePicker},
-  props: ['show', 'dateForCreate'],
-
-  watch: {
-    show: function(val) {
-      if (val) {
-        this.dialog = val
-      }
-    },
-    dateForCreate: function (val) {
-      this.date = val
-    },
-    dialog: function(val) {
-      if (!val) {
-        this.$emit('dialog', val)
-      } else {
-        this.$emit('destroy')
-      }
-    }
-  },
-  methods: {
-    closeDialog() {
-      this.dialog = false
-      this.$emit('destroy')
-      this.$refs.form.reset()
-    },
-    create() {
-      if (!this.$refs.form.validate()) {
-        return
-      }
-      this.dialog = false
-      if (this.end === this.timeObject.end && this.start === this.timeObject.start) {
-        return
-      }
-      this.$emit('create', {
-        name: this.name,
-        homework: this.homework,
-        time: this.timeObject
-      })
-      this.$refs.form.reset()
-    },
-    onSave(obj) {
-      this.timeObject = obj;
-    }
-  },
-  data: () => ({
-    name: null,
-    homework: null,
-    timeObject: null,
-    dialog: false,
-    start: null,
-    end: null,
-    date: null,
-    rules,
-  })
+  mixins: [
+      ScheduleStore
+  ]
 }
 </script>
 

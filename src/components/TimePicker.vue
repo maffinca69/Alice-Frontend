@@ -111,8 +111,6 @@ export default {
   },
   data: () => ({
     rules,
-    time: null,
-    menu2: false,
     end: null,
     start: null,
     startModal: false,
@@ -127,6 +125,13 @@ export default {
     suggestionsEnd: [] // recount
   }),
   watch: {
+    startTime: function(val) {
+      this.start = val ? dates.formattedDateToTime(val) : null
+    },
+    endTime: function(val) {
+      this.end = val ? dates.formattedDateToTime(val) : null
+      this.suggestionsEnd = [];
+    },
     start: function(val) {
       this.saveStart()
       if (val) {
@@ -145,8 +150,8 @@ export default {
       });
     },
     saveStart() {
-      this.endModal = false
       this.$refs.startDialog.save(this.start)
+      this.endModal = false
       this.save()
     },
     saveEnd() {

@@ -1,82 +1,79 @@
 <template>
-  <div class="text-center">
-    <v-dialog
-        width="500"
-        v-model="dialog"
-    >
+  <v-dialog v-model="dialog" width="500">
 
-      <v-card>
-        <v-card-title class="headline grey lighten-2" v-if="item">
-          {{ item.name }}
-        </v-card-title>
+    <v-card>
+      <v-app-bar color="primary" dark elevation="0">
+        <v-toolbar-title class="font-weight-bold">
+          {{ name || 'Название урока' }}
+        </v-toolbar-title>
+      </v-app-bar>
 
-        <v-card-text v-if="item">
-          <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
-        </v-card-text>
+      <v-divider></v-divider>
 
-        <v-divider></v-divider>
+      <v-form ref="form">
+        <v-text-field
+            class="ms-6 me-6"
+            :rules="[ rules.required(name) ]"
+            placeholder="Название урока"
+            v-model="name">
+        </v-text-field>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-              color="primary"
-              text
-              @click="closeDialog()"
-          >
-            Сохранить
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+        <div class="ms-6 me-6" >
+          <TimePicker v-model="picker" :start-time="this.start" :end-time="this.end" @save="onSave"/>
+        </div>
+
+        <v-textarea
+            class="ms-6 me-6"
+            rows="3"
+            outlined
+            :rules="[ rules.maxLength(255) ]"
+            length="12"
+            counter
+            placeholder="Домашнее задание (не обязательно)"
+            v-model="homework">
+        </v-textarea>
+      </v-form>
+
+
+      <v-divider></v-divider>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+            color="red"
+            text
+            @click="closeDialog()">
+          Закрыть
+        </v-btn>
+        <v-btn
+            color="primary"
+            text
+            @click="create()">
+          Обновить
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
-import TimePicker from "@/components/TimePicker";
+import ScheduleStoreMixin from "@/mixins/ScheduleStoreMixin";
 
 export default {
-  name: "Modal",
-  components: {TimePicker},
-  props: ['show', 'item'],
-
+  mixins: [
+      ScheduleStoreMixin
+  ],
+  data: () => ({
+    picker: true
+  }),
   watch: {
-    show: function(val) {
-      if (val) {
-        this.dialog = val
-      }
-    },
-    item: function (val) {
+    item: function(val) {
       this.end = val.time_end
       this.start = val.time_start
-      this.timeObject = {
-        start: this.start,
-        end: this.end ,
-      }
+      this.name = val.name
+      this.homework = val.homework
     },
-    dialog: function(val) {
-      if (!val) {
-        this.$emit('dialog', val)
-      }
-    }
-  },
-  methods: {
-    closeDialog() {
-      this.dialog = false
-      if (this.end === this.timeObject.end && this.start === this.timeObject.start) {
-        return
-      }
-      this.$emit('save', this.timeObject)
-    },
-    onSave(obj) {
-      this.timeObject = obj;
-    }
-  },
-  data: () => ({
-    timeObject: null,
-    dialog: false,
-    start: null,
-    end: null,
-  })
+  }
 }
 </script>
 
