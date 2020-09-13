@@ -122,7 +122,7 @@ export default {
       '11:05',
       '12:00',
     ],
-    suggestionsEnd: [] // recount
+    suggestionsEnd: [] // recount after set start time
   }),
   watch: {
     startTime: function(val) {
@@ -169,7 +169,7 @@ export default {
       for (let i = 0; i < 5; i++) {
         let time = moment(lastTime || val, format)
             .add(40, 'minutes') // 40 - время урока
-            .format('HH:mm')
+            .format(format)
         lastTime = time;
         arr.push(time)
       }

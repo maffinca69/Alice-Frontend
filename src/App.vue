@@ -243,9 +243,7 @@ export default {
       this.editDialog = false
     },
     onReload(date) {
-      if (date === null) {
-        return
-      }
+      if (date === null) return
 
       this.selectedDate = date
       this.load(new Date(date))
