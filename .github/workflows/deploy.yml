@@ -23,12 +23,11 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy 🚀
-        uses: AEnterprise/rsync-deploy@v1.0
+        uses: easingthemes/ssh-deploy@v2.1.1
         env:
-          DEPLOY_KEY: ${{ secrets.SSH_SECRET_KEY }}
-          ARGS: "-e -c -r --delete"
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          FOLDER: "./dist"
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DESTINATION: ${{ secrets.SERVER_DESTINATION }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_SECRET_KEY }}
+          ARGS: "-rltgoDzvO --delete"
+          SOURCE: "dist/"
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: ${{ secrets.SERVER_DESTINATION }}
