@@ -4,7 +4,17 @@
     <Header @date-change="onReload" :title="title" />
 
     <v-main class="mt-1">
-      <v-data-table :hide-default-footer="true" :headers="headers" :items="items" :loading="loading">
+
+      <Notification />
+
+      <v-data-table
+          disable-filtering
+          loading-text="Расписание загружается..."
+          no-data-text="Уроки не найдены"
+          :hide-default-footer="true"
+          :headers="headers"
+          :items="items"
+          :loading="loading">
         <template v-slot:item.action="{ item }">
           <v-btn :disabled="loading" icon color="red" @click="onClickDeleteBtn(item)">
             <v-icon>mdi-delete</v-icon>
@@ -61,22 +71,7 @@
           @destroy="onDestroyDetailsDialog">
       </ModalDetails>
 
-      <v-snackbar
-          v-model="snackbar"
-          :color="snackbarData.status"
-      >
-        {{ snackbarData.text }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn
-              text
-              v-bind="attrs"
-              @click="snackbar = false"
-          >
-            OK
-          </v-btn>
-        </template>
-      </v-snackbar>
+      <Snackbar />
     </v-main>
   </v-app>
 </template>
@@ -90,10 +85,15 @@ import ModalDetails from "@/components/Modals/ModalDetails";
 import text from "@/utils/text";
 import API from "@/plugins/API";
 import dayjs from "dayjs";
+import isBetween from 'dayjs/plugin/isBetween'
+import Notification from "@/components/Notification";
+import Snackbar from "@/components/Snackbar";
 
 export default {
   name: 'App',
   components: {
+    Snackbar,
+    Notification,
     ModalDetails,
     ModalEdit,
     ModalCreate,
@@ -103,7 +103,11 @@ export default {
       API
   ],
   mounted() {
-    this.load()
+    this.load().then(() => {
+      setTimeout(() => {
+        this.checkCurrentLesson()
+      }, 300)
+    })
   },
   data: () => ({
     dates,
@@ -114,11 +118,6 @@ export default {
     editDialog: false,
     createDialog: false,
     detailsDialog: false,
-    snackbar: false,
-    snackbarData: {
-      text: null,
-      status: 'error'
-    },
     selectedItem: null,
     loading: false,
     headers: [
@@ -132,12 +131,15 @@ export default {
   }),
   methods: {
     load(date) {
-      let dateLoading = date === undefined ? dayjs().format(dates.FORMAT_FULL_DATE) : dayjs(date).format(dates.FORMAT_FULL_DATE)
+      let dateLoading = date === undefined ?
+          dayjs().format(dates.FORMAT_FULL_DATE) :
+          dayjs(date).format(dates.FORMAT_FULL_DATE)
 
       this.loading = true
-      API.fetchGet(dateLoading).then(response => {
+      return API.fetchGet(dateLoading).then(response => {
         this.items = response.data.data;
         this.sortItems()
+
       }).finally(() => this.loading = false)
     },
 
@@ -148,8 +150,14 @@ export default {
       let startSplit = obj.time.start.split(':');
       let endSplit = obj.time.end.split(':');
 
-      item.time_start = dayjs(item.date).set('hour', startSplit[0]).set('minute', startSplit[1]).format(dates.FORMAT_FULL_DATE)
-      item.time_end = dayjs(item.date).set('hour', endSplit[0]).set('minute', endSplit[1]).format(dates.FORMAT_FULL_DATE)
+      item.time_start = dayjs(item.date)
+          .set('hour', startSplit[0])
+          .set('minute', startSplit[1])
+          .format(dates.FORMAT_FULL_DATE)
+      item.time_end = dayjs(item.date)
+          .set('hour', endSplit[0])
+          .set('minute', endSplit[1])
+          .format(dates.FORMAT_FULL_DATE)
       item.name = obj.name
       item.homework = obj.homework
 
@@ -157,9 +165,7 @@ export default {
       API.fetchUpdate(item).then(response => {
         let data = response.data;
         if (data.status) {
-          this.snackbar = true
-          this.snackbarData.text = 'Расписание обновлено'
-          this.snackbarData.status = 'success'
+          this.$root.$emit('snackbar', 'Расписание обновлено')
           this.sortItems()
         }
       }).finally(() => this.loading = false)
@@ -170,8 +176,14 @@ export default {
       let endSplit = obj.time.end.split(':');
 
       let item = {
-        time_start: dayjs().set('hour', startSplit[0]).set('minute', startSplit[1]).format(dates.FORMAT_FULL_DATE),
-        time_end: dayjs().set('hour', endSplit[0]).set('minute', endSplit[1]).format(dates.FORMAT_FULL_DATE),
+        time_start: dayjs()
+            .set('hour', startSplit[0])
+            .set('minute', startSplit[1])
+            .format(dates.FORMAT_FULL_DATE),
+        time_end: dayjs()
+            .set('hour', endSplit[0])
+            .set('minute', endSplit[1])
+            .format(dates.FORMAT_FULL_DATE),
         name: obj.name,
         homework: obj.homework,
         date: dayjs(this.selectedDate).format(dates.FORMAT_FULL_DATE)
@@ -181,10 +193,7 @@ export default {
       API.fetchCreate(item).then(response => {
         let data = response.data;
         if (data.status) {
-          this.snackbar = true
-          this.snackbarData.text = 'Расписание добавлено'
-          this.snackbarData.status = 'success'
-
+          this.$root.$emit('snackbar', 'Расписание добавлено')
           this.items.push(data.item)
           this.sortItems()
         }
@@ -214,6 +223,42 @@ export default {
       this.title = tomorrow
       this.load(tomorrow)
     },
+
+    // Проверяем идет ли сейчас урок/перемена
+    checkCurrentLesson() {
+      dayjs.extend(isBetween)
+
+      // Идет урок
+      let lesson = this.items.find(el => {
+        return dayjs().isBetween(dayjs(el.time_start), dayjs(el.time_end), 'minute')
+      })
+
+      // Идет перемена
+      let schoolBreak = this.items.find((el, index) => {
+        let isNext = this.items[index + 1] !== undefined
+        if (isNext) {
+          return dayjs().isBetween(dayjs(el.time_end), dayjs(this.items[index + 1].time_start), 'minute')
+        }
+      })
+
+      if (lesson) {
+        let index = this.items.indexOf(lesson)
+        this.$root.$emit('notify',
+            'Сейчас идет ' + (index + 1) + ' урок (' + lesson.name +')',
+            'info',
+            3000)
+      }
+
+      if (schoolBreak) {
+        let index = this.items.indexOf(schoolBreak)
+        this.$root.$emit(
+            'notify',
+            'Сейчас идет перемена между ' + (index + 1) + ' и ' + (index + 2) + ' уроком',
+            'info',
+            5000
+        )
+      }
+    },
     onClickEditBtn(item) {
       this.editDialog = true
       this.selectedItem = item
@@ -228,9 +273,7 @@ export default {
         if (data.status) {
           let index = this.items.indexOf(item)
           this.items.splice(index, 1);
-          this.snackbar = true
-          this.snackbarData.text = 'Расписание удалено'
-          this.snackbarData.status = 'success'
+          this.$root.$emit('snackbar', 'Расписание удалено')
         }
       }).finally(() => this.loading = false)
     },
