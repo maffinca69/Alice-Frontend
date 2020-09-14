@@ -97,20 +97,20 @@
 </template>
 
 <script>
-import dates from "@/utils/dates";
-import moment from 'moment'
+import dayjs from 'dayjs'
 import rules from "@/utils/rules";
 
 export default {
   name: "TimePicker",
   props: ['startTime', 'endTime'],
   mounted() {
-    this.end = this.endTime ? dates.formattedDateToTime(this.endTime) : null
-    this.start = this.startTime ? dates.formattedDateToTime(this.startTime) : null
+    this.end = this.endTime ? dayjs(this.endTime).format(this.formatTime) : null
+    this.start = this.startTime ? dayjs(this.startTime).format(this.formatTime) : null
     this.suggestionsEnd = [];
   },
   data: () => ({
     rules,
+    formatTime: 'HH:mm',
     end: null,
     start: null,
     startModal: false,
@@ -126,10 +126,10 @@ export default {
   }),
   watch: {
     startTime: function(val) {
-      this.start = val ? dates.formattedDateToTime(val) : null
+      this.start = val ? dayjs(val).format(this.formatTime) : null
     },
     endTime: function(val) {
-      this.end = val ? dates.formattedDateToTime(val) : null
+      this.end = val ? dayjs(val).format(this.formatTime) : null
       this.suggestionsEnd = [];
     },
     start: function(val) {
@@ -167,8 +167,11 @@ export default {
 
       // 5 уроков
       for (let i = 0; i < 5; i++) {
-        let time = moment(lastTime || val, format)
-            .add(40, 'minutes') // 40 - время урока
+        let currentTime = (lastTime || val).split(':')
+        let hours = currentTime[0]
+        let minutes = currentTime[1]
+        let time = dayjs().set('minute', minutes).set('hour', hours)
+            .add(40, 'minute') // 40 - время урока
             .format(format)
         lastTime = time;
         arr.push(time)

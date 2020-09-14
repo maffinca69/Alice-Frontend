@@ -34,15 +34,12 @@ export default {
             if (!this.$refs.form.validate()) {
                 return
             }
-            this.dialog = false
-            if (this.end === this.timeObject.end && this.start === this.timeObject.start) {
-                return
-            }
             this.$emit('submit', {
                 name: this.name,
                 homework: this.homework,
                 time: this.timeObject
             })
+            this.dialog = false
         },
         onSave(obj) {
             this.timeObject = obj;

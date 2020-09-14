@@ -42,26 +42,28 @@
 
 <script>
 import dates from "@/utils/dates";
-import moment from 'moment'
+import dayjs from "dayjs";
+import 'dayjs/locale/ru' // load on demand
 
 export default {
   name: "Header",
   props: ['title'],
   watch: {
     title: function (val) {
-      this.currentDay = dates.currentDayName(val)
-      this.date = moment(val).format('YYYY-MM-DD')
+      this.currentDay = dayjs(val).locale('ru').format(dates.FORMAT_DAY)
+      this.date = dayjs(val).format('YYYY-MM-DD')
     }
   },
   data: () => ({
     menu: false,
     date: null,
-    currentDay: dates.currentDayName(),
+    dayjs,
+    currentDay: dayjs().locale('ru').format(dates.FORMAT_DAY),
   }),
   methods: {
     load() {
       this.$refs.menu.save(this.date)
-      this.currentDay = dates.currentDayName(this.date)
+      this.currentDay = dayjs(this.date).locale('ru').format(dates.FORMAT_DAY)
       this.$emit('date-change', this.date)
     }
   }

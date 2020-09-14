@@ -67,11 +67,12 @@ export default {
     picker: true
   }),
   watch: {
-    item: function(val) {
-      this.end = val.time_end
-      this.start = val.time_start
-      this.name = val.name
-      this.homework = val.homework
+    item: function(val, newVal) {
+      let item = val || newVal
+      this.end = item.time_end
+      this.start = item.time_start
+      this.name = item.name
+      this.homework = item.homework
     },
   }
 }

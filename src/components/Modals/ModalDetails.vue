@@ -19,12 +19,14 @@
         </v-row>
         <v-row>
           <v-col>
-            <span class="font-weight-bold">Начало урока: </span>{{ dates.formattedDateToTime(item.time_start) }}
+            <span class="font-weight-bold">Начало урока: </span>
+            {{ dayjs(item.time_start).format(dates.FORMAT_TIME) }}
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <span class="font-weight-bold">Конец урока: </span>{{ dates.formattedDateToTime(item.time_end) }}
+            <span class="font-weight-bold">Конец урока: </span>
+            {{ dayjs(item.time_end).format(dates.FORMAT_TIME) }}
           </v-col>
         </v-row>
         <v-row>
@@ -41,24 +43,22 @@
 
 <script>
 import dates from "@/utils/dates";
+import dayjs from "dayjs";
 
 export default {
   name: "ModalDetails",
   props: ['show', 'item'],
   data: () => ({
-    dialog: false,
-    dates: dates
+    dates,
+    dayjs,
+    dialog: false
   }),
   watch: {
     show: function (val) {
-      if (val) {
-        this.dialog = val
-      }
+      if (val) this.dialog = val
     },
     dialog: function (val) {
-      if (val) {
-        this.$emit('destroy')
-      }
+      if (val) this.$emit('destroy')
     }
   },
   methods: {

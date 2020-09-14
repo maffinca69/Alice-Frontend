@@ -20,10 +20,10 @@
           <td>{{ text.trimmedText(item.homework || '', 65) }}</td>
         </template>
         <template v-slot:item.time_start="{ item }">
-          <td>{{ dates.formattedDateToTime(item.time_start) }}</td>
+          <td>{{ dayjs(item.time_start).format(dates.FORMAT_TIME) }}</td>
         </template>
         <template v-slot:item.time_end="{ item }">
-          <td>{{ dates.formattedDateToTime(item.time_end) }}</td>
+          <td>{{ dayjs(item.time_end).format(dates.FORMAT_TIME) }}</td>
         </template>
       </v-data-table>
 
@@ -43,11 +43,13 @@
 
       <ModalEdit
           :show="this.editDialog"
+          v-model="editDialog"
           :item="this.selectedItem"
           @destroy="onDestroyEditDialog"
           @submit="onUpdate">
       </ModalEdit>
       <ModalCreate
+          v-model="createDialog"
           :date-for-create="selectedDate"
           :show="this.createDialog"
           @destroy="onDestroyCreateDialog"
@@ -84,10 +86,10 @@ import Header from "@/components/Header";
 import ModalEdit from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
 import dates from "@/utils/dates";
-import moment from 'moment'
 import ModalDetails from "@/components/Modals/ModalDetails";
 import text from "@/utils/text";
 import API from "@/plugins/API";
+import dayjs from "dayjs";
 
 export default {
   name: 'App',
@@ -106,8 +108,9 @@ export default {
   data: () => ({
     dates,
     text,
-    title: dates.currentDayName(),
-    selectedDate: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+    dayjs,
+    title: dayjs().locale('ru').format(dates.FORMAT_DAY),
+    selectedDate: dayjs().format(dates.FORMAT_FULL_DATE),
     editDialog: false,
     createDialog: false,
     detailsDialog: false,
@@ -129,7 +132,7 @@ export default {
   }),
   methods: {
     load(date) {
-      let dateLoading = date === undefined ? (new Date()).toDateString() : date.toDateString()
+      let dateLoading = date === undefined ? dayjs().format(dates.FORMAT_FULL_DATE) : dayjs(date).format(dates.FORMAT_FULL_DATE)
 
       this.loading = true
       API.fetchGet(dateLoading).then(response => {
@@ -145,8 +148,8 @@ export default {
       let startSplit = obj.time.start.split(':');
       let endSplit = obj.time.end.split(':');
 
-      item.time_start = moment(item.date).set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
-      item.time_end = moment(item.date).set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss')
+      item.time_start = dayjs(item.date).set('hour', startSplit[0]).set('minute', startSplit[1]).format(dates.FORMAT_FULL_DATE)
+      item.time_end = dayjs(item.date).set('hour', endSplit[0]).set('minute', endSplit[1]).format(dates.FORMAT_FULL_DATE)
       item.name = obj.name
       item.homework = obj.homework
 
@@ -158,7 +161,6 @@ export default {
           this.snackbarData.text = 'Расписание обновлено'
           this.snackbarData.status = 'success'
           this.sortItems()
-          this.selectedItem = null
         }
       }).finally(() => this.loading = false)
     },
@@ -168,11 +170,11 @@ export default {
       let endSplit = obj.time.end.split(':');
 
       let item = {
-        time_start: moment().set({hour: startSplit[0], minute: startSplit[1]}).format('YYYY-MM-DD HH:mm:ss'),
-        time_end: moment().set({hour: endSplit[0], minute: endSplit[1]}).format('YYYY-MM-DD HH:mm:ss'),
+        time_start: dayjs().set('hour', startSplit[0]).set('minute', startSplit[1]).format(dates.FORMAT_FULL_DATE),
+        time_end: dayjs().set('hour', endSplit[0]).set('minute', endSplit[1]).format(dates.FORMAT_FULL_DATE),
         name: obj.name,
         homework: obj.homework,
-        date: moment(this.selectedDate).format('YYYY-MM-DD HH:mm:ss')
+        date: dayjs(this.selectedDate).format(dates.FORMAT_FULL_DATE)
       }
 
       this.loading = true
@@ -193,7 +195,7 @@ export default {
     },
     sortItems() {
       this.items.sort((a, b) => {
-        return moment.utc(a.time_start).diff(moment.utc(b.time_start))
+        return dayjs(a.time_start).diff(dayjs(b.time_start))
       });
     },
     viewItem(item) {
@@ -201,15 +203,13 @@ export default {
       this.detailsDialog = true
     },
     previousDay() {
-      const yesterday = new Date(this.selectedDate)
-      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterday = dayjs(this.selectedDate).subtract(1, 'day')
       this.selectedDate = yesterday
       this.title = yesterday
       this.load(yesterday)
     },
     nextDay() {
-      const tomorrow = new Date(this.selectedDate)
-      tomorrow.setDate(tomorrow.getDate() + 1)
+      const tomorrow = dayjs(this.selectedDate).add(1, 'day')
       this.selectedDate = tomorrow
       this.title = tomorrow
       this.load(tomorrow)
@@ -247,7 +247,7 @@ export default {
       if (date === null) return
 
       this.selectedDate = date
-      this.load(new Date(date))
+      this.load(date)
     },
   }
 };

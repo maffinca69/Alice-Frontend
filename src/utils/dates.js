@@ -1,18 +1,9 @@
+const FORMAT_TIME = 'HH:mm'
+const FORMAT_FULL_DATE = 'YYYY-MM-DD HH:mm:ss'
+const FORMAT_DAY = 'dddd, DD MMMM'
+
 export default {
-    currentDayName(val) {
-        let date = val ? new Date(val) : new Date();
-        return date.toLocaleString("default", { weekday: "long" });
-    },
-
-    formattedDateToTime(value) {
-        let date = new Date(value)
-        return this.addZeroToTime(date.getHours()) + ':' + this.addZeroToTime(date.getMinutes())
-    },
-
-    addZeroToTime(time) {
-        if (time < 10) {
-            time = "0" + time;
-        }
-        return time;
-    },
+    FORMAT_FULL_DATE: FORMAT_FULL_DATE,
+    FORMAT_TIME: FORMAT_TIME,
+    FORMAT_DAY: FORMAT_DAY,
 }
