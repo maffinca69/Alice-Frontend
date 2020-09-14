@@ -78,16 +78,22 @@
 
 <script>
 import Header from "@/components/Header";
-import ModalEdit from "@/components/Modals/ModalEdit";
-import ModalCreate from "@/components/Modals/ModalCreate";
+
+// Utils
 import dates from "@/utils/dates";
-import ModalDetails from "@/components/Modals/ModalDetails";
 import text from "@/utils/text";
 import API from "@/plugins/API";
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween'
+
+// Notify
 import Notification from "@/components/Notification";
 import Snackbar from "@/components/Snackbar";
+
+// Modals
+import ModalDetails from "@/components/Modals/ModalDetails";
+import ModalEdit from "@/components/Modals/ModalEdit";
+import ModalCreate from "@/components/Modals/ModalCreate";
 
 export default {
   name: 'App',
