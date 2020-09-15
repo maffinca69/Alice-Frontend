@@ -70,8 +70,6 @@
           :show="this.detailsDialog"
           @destroy="onDestroyDetailsDialog">
       </ModalDetails>
-
-      <Snackbar />
     </v-main>
   </v-app>
 </template>
@@ -88,7 +86,6 @@ import isBetween from 'dayjs/plugin/isBetween'
 
 // Notify
 import Notification from "@/components/Notification";
-import Snackbar from "@/components/Snackbar";
 
 // Modals
 import ModalDetails from "@/components/Modals/ModalDetails";
@@ -98,7 +95,6 @@ import ModalCreate from "@/components/Modals/ModalCreate";
 export default {
   name: 'App',
   components: {
-    Snackbar,
     Notification,
     ModalDetails,
     ModalEdit,
@@ -171,7 +167,7 @@ export default {
       API.fetchUpdate(item).then(response => {
         let data = response.data;
         if (data.status) {
-          this.$root.$emit('snackbar', 'Расписание обновлено')
+          this.$root.$emit('notify', 'Расписание обновлено', 'success', 2000)
           this.sortItems()
         }
       }).finally(() => this.loading = false)
@@ -199,7 +195,7 @@ export default {
       API.fetchCreate(item).then(response => {
         let data = response.data;
         if (data.status) {
-          this.$root.$emit('snackbar', 'Расписание добавлено')
+          this.$root.$emit('notify', 'Новый урок добавлен', 'success', 2000)
           this.items.push(data.item)
           this.sortItems()
         }
@@ -279,7 +275,7 @@ export default {
         if (data.status) {
           let index = this.items.indexOf(item)
           this.items.splice(index, 1);
-          this.$root.$emit('snackbar', 'Расписание удалено')
+          this.$root.$emit('notify', 'Урок удален', 'success', 2000)
         }
       }).finally(() => this.loading = false)
     },
