@@ -153,8 +153,8 @@ export default {
       let index = this.items.indexOf(this.selectedItem);
       let item = this.items[index];
 
-      let startSplit = obj.time.start.split(':');
-      let endSplit = obj.time.end.split(':');
+      let startSplit = obj.start.split(':');
+      let endSplit = obj.end.split(':');
 
       item.time_start = dayjs(item.date)
           .set('hour', startSplit[0])
@@ -178,8 +178,8 @@ export default {
     },
 
     onCreate(obj) {
-      let startSplit = obj.time.start.split(':');
-      let endSplit = obj.time.end.split(':');
+      let startSplit = obj.start.split(':');
+      let endSplit = obj.end.split(':');
 
       let item = {
         time_start: dayjs()

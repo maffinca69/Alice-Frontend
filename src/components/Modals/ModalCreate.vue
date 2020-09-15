@@ -18,9 +18,97 @@
             v-model="name">
         </v-text-field>
 
-        <div class="ms-6 me-6">
-          <TimePicker :start-time="this.start" :end-time="this.end" @save="onSave"/>
+        <div class="ms-6 me-6" >
+          <div>
+            <v-row no-gutters>
+              <v-col>
+                <v-dialog
+                    ref="startDialog"
+                    v-model="startModal"
+                    persistent
+                    width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                        v-model="start"
+                        label="Начало"
+                        prepend-icon="mdi-clock"
+                        readonly
+                        :rules="[ rules.required(start) ]"
+                        v-bind="attrs"
+                        v-on="on"
+                    ></v-text-field>
+                    <v-chip-group
+                        v-model="start">
+                      <v-chip
+                          v-for="item in suggestionsStart"
+                          :key="item"
+                          small
+                          outlined
+                          :value="item">
+                        {{ item }}
+                      </v-chip>
+                    </v-chip-group>
+                  </template>
+                  <v-time-picker
+                      format="24hr"
+                      v-if="startModal"
+                      v-model="start">
+                    <v-spacer></v-spacer>
+                    <v-btn text color="red" @click="startModal = false">Закрыть</v-btn>
+                    <v-btn text color="primary" @click="startModal = false">OK</v-btn>
+                  </v-time-picker>
+                </v-dialog>
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>
+                <v-dialog
+                    ref="endDialog"
+                    v-model="endModal"
+                    persistent
+                    width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                        v-model="end"
+                        label="Окончание"
+                        prepend-icon="mdi-clock"
+                        readonly
+                        :rules="[ rules.required(end) ]"
+                        v-bind="attrs"
+                        v-on="on"
+                    ></v-text-field>
+                    <v-chip-group
+                        v-model="end">
+                      <v-chip
+                          v-for="item in suggestionsEnd"
+                          :key="item"
+                          small
+                          outlined
+                          :value="item">
+                        {{ item }}
+                      </v-chip>
+                    </v-chip-group>
+                  </template>
+                  <v-time-picker
+                      format="24hr"
+                      v-if="endModal"
+                      v-model="end"
+                  >
+                    <v-spacer></v-spacer>
+
+                    <v-btn text color="red" @click="endModal = false">Закрыть</v-btn>
+                    <v-btn text color="primary" @click="endModal = false">OK</v-btn>
+                  </v-time-picker>
+
+                </v-dialog>
+
+              </v-col>
+            </v-row>
+          </div>
         </div>
+
 
         <v-textarea
             class="ms-6 me-6"
