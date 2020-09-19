@@ -12,7 +12,6 @@
     "core-js": "^3.6.5",
     "dayjs": "^1.8.35",
     "vue": "^2.6.11",
-    "vue2-datepicker": "^3.6.2",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
