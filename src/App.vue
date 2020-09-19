@@ -257,10 +257,10 @@ export default {
       }
 
       // Уроки закончились
-      // let text = 'На сегодня уроки закончились. Открыть расписание на завтра?'
-      // return this.$root.$emit('notify', text, 'info', 6000, 'ОК', () => {
-      //   this.nextDay()
-      // })
+      let text = 'На сегодня уроки закончились. Открыть расписание на завтра?'
+      return this.$root.$emit('notify', text, 'info', 6000, 'ОК', () => {
+        this.nextDay()
+      })
     },
     onClickEditBtn(item) {
       this.editDialog = true
