@@ -104,6 +104,9 @@ export default {
   mixins: [
       API
   ],
+  created() {
+    API.init(this)
+  },
   mounted() {
     this.load().then(() => {
       setTimeout(() => {
@@ -139,7 +142,9 @@ export default {
 
       this.loading = true
       return API.fetchGet(dateLoading).then(response => {
-        this.items = response.data.data;
+        if (response && response.status === 200) {
+          this.items = response.data.data;
+        }
       }).finally(() => this.loading = false)
     },
 
@@ -150,8 +155,7 @@ export default {
 
       this.loading = true
       API.fetchUpdate(item).then(response => {
-        let data = response.data;
-        if (data.status) {
+        if (response && response.status === 200) {
           this.$root.$emit('notify', 'Расписание обновлено', 'success', 2000)
           this.sortItems()
         }
@@ -163,8 +167,8 @@ export default {
 
       this.loading = true
       API.fetchCreate(item).then(response => {
-        let data = response.data;
-        if (data.status) {
+        let data = response.data || {};
+        if (response && response.status === 200) {
           this.$root.$emit('notify', 'Новый урок добавлен', 'success', 2000)
           this.items.push(data.item)
           this.sortItems()
@@ -259,8 +263,7 @@ export default {
     onClickDeleteBtn(item) {
       this.loading = true
       API.fetchDelete(item.id).then(response => {
-        let data = response.data;
-        if (data.status) {
+        if (response && response.status === 200) {
           let index = this.items.indexOf(item)
           this.items.splice(index, 1);
           this.$root.$emit('notify', 'Урок удален', 'success', 2000)
