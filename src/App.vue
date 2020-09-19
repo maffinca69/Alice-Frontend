@@ -155,10 +155,10 @@ export default {
     onUpdate(obj) {
       let index = this.items.indexOf(this.selectedItem);
       let item = this.items[index];
-      item = this.prepareFetchData(obj)
+      this.items[index] = this.prepareFetchData(item, obj)
 
       this.loading = true
-      API.fetchUpdate(item).then(response => {
+      API.fetchUpdate(this.items[index]).then(response => {
         if (response && response.status === 200) {
           this.$root.$emit('notify', 'Расписание обновлено', 'success', 2000)
           this.sortItems()
@@ -167,7 +167,7 @@ export default {
     },
 
     onCreate(obj) {
-      let item = this.prepareFetchData(obj)
+      let item = this.prepareFetchData(obj, obj)
 
       this.loading = true
       API.fetchCreate(item).then(response => {
@@ -182,11 +182,12 @@ export default {
         this.createDialog = false
       })
     },
-    prepareFetchData(obj) {
-      let startSplit = obj.start.split(':');
-      let endSplit = obj.end.split(':');
+    prepareFetchData(source, updateData) {
+      let startSplit = updateData.start.split(':');
+      let endSplit = updateData.end.split(':');
 
       return {
+        id: 'id' in source ? source.id: 0,
         time_start: dayjs()
             .set('hour', startSplit[0])
             .set('minute', startSplit[1])
@@ -195,8 +196,8 @@ export default {
             .set('hour', endSplit[0])
             .set('minute', endSplit[1])
             .format(dates.FORMAT_FULL_DATE),
-        name: obj.name,
-        homework: obj.homework,
+        name: updateData.name,
+        homework: updateData.homework,
         date: dayjs(this.selectedDate).format(dates.FORMAT_FULL_DATE)
       }
     },
@@ -241,21 +242,25 @@ export default {
 
       if (lesson) {
         let index = this.items.indexOf(lesson)
-        this.$root.$emit('notify',
-            'Сейчас идет ' + (index + 1) + ' урок (' + lesson.name +')',
-            'info',
-            3000)
+        return this.$root.$emit('notify',
+            'Сейчас идет ' + (index + 1) + ' урок (' + lesson.name +')', 'info', 3000)
       }
 
       if (schoolBreak) {
         let index = this.items.indexOf(schoolBreak)
-        this.$root.$emit(
+        return this.$root.$emit(
             'notify',
             'Сейчас идет перемена между ' + (index + 1) + ' и ' + (index + 2) + ' уроком',
             'info',
             5000
         )
       }
+
+      // Уроки закончились
+      // let text = 'На сегодня уроки закончились. Открыть расписание на завтра?'
+      // return this.$root.$emit('notify', text, 'info', 6000, 'ОК', () => {
+      //   this.nextDay()
+      // })
     },
     onClickEditBtn(item) {
       this.editDialog = true
