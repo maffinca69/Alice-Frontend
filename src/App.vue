@@ -37,18 +37,22 @@
         </template>
       </v-data-table>
 
-      <v-layout row justify-start class="ms-4 mt-4 mb-4">
-        <v-btn class="btn primary me-2" @click="previousDay" :disabled="loading" icon>
-          <v-icon color="white">
-            mdi-chevron-left
-          </v-icon>
-        </v-btn>
-        <v-btn class="btn success" @click="onClickAddBtn" :disabled="loading">Добавить</v-btn>
-        <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
-          <v-icon color="white">
-            mdi-chevron-right
-          </v-icon>
-        </v-btn>
+      <v-layout row justify-space-around class="mb-4 mt-3">
+        <v-layout justify-start class="ms-6">
+          <v-btn class="btn accent" @click="onClickAddBtn" :disabled="loading">Добавить</v-btn>
+        </v-layout>
+        <v-layout row justify-end class="me-6">
+          <v-btn class="btn primary me-2" @click="previousDay" :disabled="loading" icon>
+            <v-icon color="white">
+              mdi-chevron-left
+            </v-icon>
+          </v-btn>
+          <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
+            <v-icon color="white">
+              mdi-chevron-right
+            </v-icon>
+          </v-btn>
+        </v-layout>
       </v-layout>
 
       <ModalEdit
