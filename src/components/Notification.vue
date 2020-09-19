@@ -46,7 +46,10 @@ export default {
 
       if (actionText) {
         self.showFull = true
-        self.$refs.actionBtn.click = callback
+        self.$refs.actionBtn.click = () => {
+          callback()
+          self.showFull = false
+        }
       }
 
       setTimeout(() => {
