@@ -140,28 +140,13 @@ export default {
       this.loading = true
       return API.fetchGet(dateLoading).then(response => {
         this.items = response.data.data;
-        this.sortItems()
-
       }).finally(() => this.loading = false)
     },
 
     onUpdate(obj) {
       let index = this.items.indexOf(this.selectedItem);
       let item = this.items[index];
-
-      let startSplit = obj.start.split(':');
-      let endSplit = obj.end.split(':');
-
-      item.time_start = dayjs(item.date)
-          .set('hour', startSplit[0])
-          .set('minute', startSplit[1])
-          .format(dates.FORMAT_FULL_DATE)
-      item.time_end = dayjs(item.date)
-          .set('hour', endSplit[0])
-          .set('minute', endSplit[1])
-          .format(dates.FORMAT_FULL_DATE)
-      item.name = obj.name
-      item.homework = obj.homework
+      item = this.prepareFetchData(obj)
 
       this.loading = true
       API.fetchUpdate(item).then(response => {
@@ -174,22 +159,7 @@ export default {
     },
 
     onCreate(obj) {
-      let startSplit = obj.start.split(':');
-      let endSplit = obj.end.split(':');
-
-      let item = {
-        time_start: dayjs()
-            .set('hour', startSplit[0])
-            .set('minute', startSplit[1])
-            .format(dates.FORMAT_FULL_DATE),
-        time_end: dayjs()
-            .set('hour', endSplit[0])
-            .set('minute', endSplit[1])
-            .format(dates.FORMAT_FULL_DATE),
-        name: obj.name,
-        homework: obj.homework,
-        date: dayjs(this.selectedDate).format(dates.FORMAT_FULL_DATE)
-      }
+      let item = this.prepareFetchData(obj)
 
       this.loading = true
       API.fetchCreate(item).then(response => {
@@ -204,9 +174,27 @@ export default {
         this.createDialog = false
       })
     },
+    prepareFetchData(obj) {
+      let startSplit = obj.start.split(':');
+      let endSplit = obj.end.split(':');
+
+      return {
+        time_start: dayjs()
+            .set('hour', startSplit[0])
+            .set('minute', startSplit[1])
+            .format(dates.FORMAT_FULL_DATE),
+        time_end: dayjs()
+            .set('hour', endSplit[0])
+            .set('minute', endSplit[1])
+            .format(dates.FORMAT_FULL_DATE),
+        name: obj.name,
+        homework: obj.homework,
+        date: dayjs(this.selectedDate).format(dates.FORMAT_FULL_DATE)
+      }
+    },
     sortItems() {
       this.items.sort((a, b) => {
-        return dayjs(a.time_start).diff(dayjs(b.time_start))
+        return dayjs(new Date(a.time_start)).diff(new Date(b.time_start))
       });
     },
     viewItem(item) {
