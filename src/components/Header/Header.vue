@@ -9,6 +9,7 @@
         {{ currentDay }}
       </v-toolbar-title>
       <v-menu
+          rounded="lg"
           ref="menu"
           v-model="menu"
           :close-on-content-click="false"

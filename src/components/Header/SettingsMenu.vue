@@ -1,5 +1,5 @@
 <template>
-  <v-menu offset-y >
+  <v-menu offset-y rounded="lg">
     <template v-slot:activator="{ on, attrs }">
       <v-btn icon class="ms-2" v-on="on" v-bind="attrs" >
         <v-icon>mdi-cog</v-icon>
