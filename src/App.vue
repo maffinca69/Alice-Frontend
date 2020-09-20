@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import Header from "@/components/Header";
+import Header from "@/components/Header/Header";
 
 // Utils
 import dates from "@/utils/dates";

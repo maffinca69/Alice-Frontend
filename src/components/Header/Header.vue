@@ -37,16 +37,20 @@
         </v-date-picker>
       </v-menu>
     </div>
+    <v-spacer></v-spacer>
+    <SettingsMenu />
   </v-app-bar>
 </template>
 
 <script>
 import dates from "@/utils/dates";
 import dayjs from "dayjs";
-import 'dayjs/locale/ru' // load on demand
+import 'dayjs/locale/ru'
+import SettingsMenu from "@/components/Header/SettingsMenu"; // load on demand
 
 export default {
   name: "Header",
+  components: {SettingsMenu},
   props: ['title'],
   watch: {
     title: function (val) {

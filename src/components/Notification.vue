@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import settings from "@/plugins/settings";
+
 export default {
   name: "Notification",
   data: () => ({
@@ -34,11 +36,16 @@ export default {
     type: 'info',
     showFull: false,
     showSimple: false,
-    actionText: null
+    actionText: null,
+    enable: settings.get(settings.IS_SHOW_INFO_NOTIFICATIONS)
   }),
   mounted() {
     let self = this
     this.$root.$on('notify', (text, type, timeout, actionText = null, callback = null) =>  {
+      if (type === 'info' && !this.enable) {
+        return
+      }
+
       self.showSimple = !actionText
       self.text = text
       self.type = type

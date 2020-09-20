@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
+import settings from "@/plugins/settings";
 
 Vue.use(Vuetify);
 
@@ -16,7 +17,7 @@ export default new Vuetify({
                 //here you will define primary secondary stuff for dark theme
             }
         },
-        dark: false
+        dark: settings.get(settings.IS_DARK_THEME)
     }
 
 });
