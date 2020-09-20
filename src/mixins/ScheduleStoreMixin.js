@@ -40,6 +40,11 @@ export default {
             if (val) {
                 this.recountSuggestionsEndTime(val);
             }
+        },
+        end(val, newVal) {
+            if (val === undefined) {
+                this.end = newVal
+            }
         }
     },
     methods: {
