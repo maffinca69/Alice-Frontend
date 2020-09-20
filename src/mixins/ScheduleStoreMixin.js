@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import dates from "@/utils/dates";
 
 export default {
-    name: "ModalCreate",
+    name: "ScheduleStoreMixin",
     props: ['show', 'dateForCreate', 'item'],
     data: () => ({
         rules,
@@ -25,21 +25,23 @@ export default {
         suggestionsEnd: [] // recount after set start time
     }),
     watch: {
-        show: function(val) {
+        show(val) {
             this.dialog = val
         },
-        dateForCreate: function (val) {
+        dateForCreate(val) {
             this.date = val
         },
-        dialog: function(val) {
+        dialog(val) {
             if (!val) {
                 this.$emit('destroy')
             }
         },
         start(val) {
-            if (val) {
-                this.recountSuggestionsEndTime(val);
+            if (!val) {
+                return
             }
+
+            this.recountSuggestionsEndTime(val);
         },
         end(val, newVal) {
             if (val === undefined) {
@@ -72,17 +74,19 @@ export default {
             this.suggestionsEnd = []
             let arr = [];
             let lastTime = null;
+            const lessonsCount = 5;
+            const lessonDurationMinutes = 40
 
-            // 5 уроков
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < lessonsCount; i++) {
                 let currentTime = (lastTime || val).split(':')
                 let hours = currentTime[0]
                 let minutes = currentTime[1]
-                let time = dayjs().set('minute', minutes).set('hour', hours)
-                    .add(40, 'minute') // 40 - время урока
+                let time = dayjs()
+                    .set('minute', minutes)
+                    .set('hour', hours)
+                    .add(lessonDurationMinutes, 'minute')
                     .format(dates.FORMAT_TIME)
-                lastTime = time;
-                arr.push(time)
+                arr.push(lastTime = time)
             }
             this.suggestionsEnd = arr;
         }
