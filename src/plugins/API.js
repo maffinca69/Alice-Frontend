@@ -34,7 +34,7 @@ export default {
     handleError(error) {
         if (!error.response) {
             return this.self.$root.$emit('notify',
-                'Неизвестная ошибка ' + error.statusCode, 'error', 3000)
+                'Неизвестная ошибка', 'error', 3000)
         }
         this.self.$root.$emit('notify', error.response.data.message, 'error', 3000)
     }
