@@ -34,19 +34,20 @@ export default {
         type: 'switch',
         value: settings.get(settings.IS_SHOW_INFO_NOTIFICATIONS),
       },
+      {
+        title: 'Темная тема (БЕТА)',
+        key: settings.IS_DARK_THEME,
+        type: 'switch',
+        value: settings.get(settings.IS_DARK_THEME),
+      }
     ],
   }),
   mounted() {
-    this.items.push({
-      title: 'Темная тема (БЕТА)',
-      key: settings.IS_DARK_THEME,
-      type: 'switch',
-      value: settings.get(settings.IS_DARK_THEME),
-      callback: (value) => {
-        this.$vuetify.theme.dark = value
-        this.onClickMenuItem(this.items[this.items.length - 1], value)
-      }
-    })
+    // Fix passing $vuetify to data
+    this.items.find(el => {return el.key === settings.IS_DARK_THEME}).callback = value => {
+      this.$vuetify.theme.dark = value
+      this.onClickMenuItem(this.items[this.items.length - 1], value)
+    }
   },
   methods: {
     onClickMenuItem(item, value) {
