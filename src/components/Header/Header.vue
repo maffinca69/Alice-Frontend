@@ -32,8 +32,8 @@
             no-title
         >
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="menu = false">Отмена</v-btn>
-          <v-btn text color="primary" @click="load">OK</v-btn>
+          <v-btn text color="red" @click="menu = false">Отмена</v-btn>
+          <v-btn text color="btn__primary" @click="load">OK</v-btn>
         </v-date-picker>
       </v-menu>
     </div>

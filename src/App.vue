@@ -19,7 +19,7 @@
           <v-btn :disabled="loading" icon color="red" @click="onClickDeleteBtn(item)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
-          <v-btn :disabled="loading" icon color="primary" @click="onClickEditBtn(item)">
+          <v-btn :disabled="loading" icon color="btn__primary" @click="onClickEditBtn(item)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
           <v-btn :disabled="loading" icon color="green" @click="viewItem(item)">

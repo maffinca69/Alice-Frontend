@@ -44,7 +44,7 @@ export default {
   }),
   mounted() {
     // Fix passing $vuetify to data
-    this.items.find(el => {return el.key === settings.IS_DARK_THEME}).callback = value => {
+    this.items.find(el => el.key === settings.IS_DARK_THEME).callback = value => {
       this.$vuetify.theme.dark = value
       this.onClickMenuItem(this.items[this.items.length - 1], value)
     }

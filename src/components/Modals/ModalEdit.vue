@@ -56,7 +56,7 @@
                       v-model="start">
                     <v-spacer></v-spacer>
                     <v-btn text color="red" @click="startModal = false">Закрыть</v-btn>
-                    <v-btn text color="primary" @click="startModal = false">OK</v-btn>
+                    <v-btn text color="btn__primary" @click="startModal = false">OK</v-btn>
                   </v-time-picker>
                 </v-dialog>
               </v-col>
@@ -99,7 +99,7 @@
                     <v-spacer></v-spacer>
 
                     <v-btn text color="red" @click="endModal = false">Закрыть</v-btn>
-                    <v-btn text color="primary" @click="endModal = false">OK</v-btn>
+                    <v-btn text color="btn__primary" @click="endModal = false">OK</v-btn>
                   </v-time-picker>
 
                 </v-dialog>
@@ -133,7 +133,7 @@
           Закрыть
         </v-btn>
         <v-btn
-            color="primary"
+            color="btn__primary"
             text
             @click="create()">
           Обновить
