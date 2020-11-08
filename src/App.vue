@@ -1,59 +1,69 @@
 <template>
   <v-app>
 
-    <Header @date-change="onReload" :title="title" />
+    <Header @date-change="onReload" :title="title" @add="onClickAddBtn"/>
 
     <v-main class="mt-1">
 
-      <Notification />
+      <Notification/>
 
-      <v-data-table
-          disable-filtering
-          loading-text="Расписание загружается..."
-          no-data-text="Уроки не найдены"
-          :hide-default-footer="true"
-          :headers="headers"
-          :items="items"
-          :loading="loading">
-        <template v-slot:item.action="{ item }">
-          <v-btn :disabled="loading" icon color="red" @click="onClickDeleteBtn(item)">
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-          <v-btn :disabled="loading" icon color="btn__primary" @click="onClickEditBtn(item)">
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-          <v-btn :disabled="loading" icon color="green" @click="viewItem(item)">
-            <v-icon>mdi-eye</v-icon>
-          </v-btn>
-        </template>
-        <template v-slot:item.homework="{ item }">
-          <td>{{ text.trimmedText(item.homework || '', 65) }}</td>
-        </template>
-        <template v-slot:item.time_start="{ item }">
-          <td>{{ dayjs(item.time_start).format(dates.FORMAT_TIME) }}</td>
-        </template>
-        <template v-slot:item.time_end="{ item }">
-          <td>{{ dayjs(item.time_end).format(dates.FORMAT_TIME) }}</td>
-        </template>
-      </v-data-table>
+      <div v-if="isMobile">
+        <app-mobile
+            :items="items"
+            @edit="onClickEditBtn"
+            @delete="onClickDeleteBtn"
+        />
+      </div>
 
-      <v-layout row justify-space-around class="mb-4 mt-3">
-        <v-layout justify-start class="ms-6">
-          <v-btn class="btn accent" @click="onClickAddBtn" :disabled="loading">Добавить</v-btn>
+      <div v-else>
+        <v-data-table
+            disable-filtering
+            loading-text="Расписание загружается..."
+            no-data-text="Уроки не найдены"
+            :hide-default-footer="true"
+            :headers="headers"
+            :items="items"
+            :loading="loading">
+          <template v-slot:item.action="{ item }">
+            <v-btn :disabled="loading" icon color="red" @click="onClickDeleteBtn(item)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+            <v-btn :disabled="loading" icon color="btn__primary" @click="onClickEditBtn(item)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn :disabled="loading" icon color="green" @click="viewItem(item)">
+              <v-icon>mdi-eye</v-icon>
+            </v-btn>
+          </template>
+          <template v-slot:item.homework="{ item }">
+            <td>{{ text.trimmedText(item.homework || '', 65) }}</td>
+          </template>
+          <template v-slot:item.time_start="{ item }">
+            <td>{{ dayjs(item.time_start).format(dates.FORMAT_TIME) }}</td>
+          </template>
+          <template v-slot:item.time_end="{ item }">
+            <td>{{ dayjs(item.time_end).format(dates.FORMAT_TIME) }}</td>
+          </template>
+        </v-data-table>
+
+        <v-layout row justify-space-around class="mb-4 mt-3">
+          <v-layout justify-start class="ms-6">
+            <v-btn class="btn accent" @click="onClickAddBtn" :disabled="loading">Добавить</v-btn>
+          </v-layout>
+          <v-layout row justify-end class="me-6">
+            <v-btn class="btn primary me-2" @click="previousDay" :disabled="loading" icon>
+              <v-icon color="white">
+                mdi-chevron-left
+              </v-icon>
+            </v-btn>
+            <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
+              <v-icon color="white">
+                mdi-chevron-right
+              </v-icon>
+            </v-btn>
+          </v-layout>
         </v-layout>
-        <v-layout row justify-end class="me-6">
-          <v-btn class="btn primary me-2" @click="previousDay" :disabled="loading" icon>
-            <v-icon color="white">
-              mdi-chevron-left
-            </v-icon>
-          </v-btn>
-          <v-btn class="btn primary ms-2" @click="nextDay" :disabled="loading" icon>
-            <v-icon color="white">
-              mdi-chevron-right
-            </v-icon>
-          </v-btn>
-        </v-layout>
-      </v-layout>
+      </div>
 
       <ModalEdit
           :show="this.editDialog"
@@ -74,12 +84,20 @@
           :show="this.detailsDialog"
           @destroy="onDestroyDetailsDialog">
       </ModalDetails>
+      <ModalConfirmDelete
+          :item="this.selectedItem"
+          :show="this.confirmDeleteDialog"
+          @delete="onDelete"
+          @destroy="onDestroyDeleteConfirmDialog">
+      </ModalConfirmDelete>
     </v-main>
   </v-app>
 </template>
 
 <script>
+// Components
 import Header from "@/components/Header/Header";
+import AppMobile from "./AppMobile";
 
 // Utils
 import dates from "@/utils/dates";
@@ -87,6 +105,7 @@ import text from "@/utils/text";
 import API from "@/plugins/API";
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween'
+import {isMobile} from 'mobile-device-detect';
 
 // Notify
 import Notification from "@/components/Notification";
@@ -95,18 +114,23 @@ import Notification from "@/components/Notification";
 import ModalDetails from "@/components/Modals/ModalDetails";
 import ModalEdit from "@/components/Modals/ModalEdit";
 import ModalCreate from "@/components/Modals/ModalCreate";
+import ModalConfirmDelete from "@/components/Modals/ModalConfirmDelete";
+import AppMixin from "@/mixins/AppMixin";
 
 export default {
   name: 'App',
   components: {
+    AppMobile,
     Notification,
     ModalDetails,
     ModalEdit,
     ModalCreate,
+    ModalConfirmDelete,
     Header
   },
   mixins: [
-      API
+    API,
+    AppMixin
   ],
   created() {
     API.init(this)
@@ -123,19 +147,14 @@ export default {
     text,
     dayjs,
     title: dayjs().locale('ru').format(dates.FORMAT_DAY),
-    selectedDate: dayjs().format(dates.FORMAT_FULL_DATE),
-    editDialog: false,
-    createDialog: false,
-    detailsDialog: false,
-    selectedItem: null,
-    loading: false,
     headers: [
-      { text: 'Урок', value: 'name', width: 300 },
-      { text: 'Начало', value: 'time_start', width: 100 },
-      { text: 'Окончание', value: 'time_end', width: 120 },
-      { text: 'Домашнее задание', value: 'homework' },
-      { text: 'Действия', value: 'action', sortable: false, align: 'center', width: 300 },
+      {text: 'Урок', value: 'name', width: 300},
+      {text: 'Начало', value: 'time_start', width: 100},
+      {text: 'Окончание', value: 'time_end', width: 120},
+      {text: 'Домашнее задание', value: 'homework'},
+      {text: 'Действия', value: 'action', sortable: false, align: 'center', width: 300},
     ],
+    isMobile: isMobile,
     items: []
   }),
   methods: {
@@ -152,42 +171,12 @@ export default {
       }).finally(() => this.loading = false)
     },
 
-    onUpdate(obj) {
-      let index = this.items.indexOf(this.selectedItem);
-      let item = this.items[index];
-      this.items[index] = this.prepareFetchData(item, obj)
-
-      this.loading = true
-      API.fetchUpdate(this.items[index]).then(response => {
-        if (response && response.status === 200) {
-          this.$root.$emit('notify', 'Расписание обновлено', 'success', 2000)
-          this.sortItems()
-        }
-      }).finally(() => this.loading = false)
-    },
-
-    onCreate(obj) {
-      let item = this.prepareFetchData(obj, obj)
-
-      this.loading = true
-      API.fetchCreate(item).then(response => {
-        let data = response.data || {};
-        if (response && response.status === 200) {
-          this.$root.$emit('notify', 'Новый урок добавлен', 'success', 2000)
-          this.items.push(data.item)
-          this.sortItems()
-        }
-      }).finally(() => {
-        this.loading = false
-        this.createDialog = false
-      })
-    },
     prepareFetchData(source, updateData) {
       let startSplit = updateData.start.split(':');
       let endSplit = updateData.end.split(':');
 
       return {
-        id: 'id' in source ? source.id: 0,
+        id: 'id' in source ? source.id : 0,
         time_start: dayjs()
             .set('hour', startSplit[0])
             .set('minute', startSplit[1])
@@ -205,10 +194,6 @@ export default {
       this.items.sort((a, b) => {
         return dayjs(new Date(a.time_start)).diff(new Date(b.time_start))
       });
-    },
-    viewItem(item) {
-      this.selectedItem = item
-      this.detailsDialog = true
     },
     previousDay() {
       const yesterday = dayjs(this.selectedDate).subtract(1, 'day')
@@ -243,7 +228,7 @@ export default {
       if (lesson) {
         let index = this.items.indexOf(lesson)
         return this.$root.$emit('notify',
-            'Сейчас идет ' + (index + 1) + ' урок (' + lesson.name +')', 'info', 3000)
+            'Сейчас идет ' + (index + 1) + ' урок (' + lesson.name + ')', 'info', 3000)
       }
 
       if (schoolBreak) {
@@ -261,32 +246,6 @@ export default {
       return this.$root.$emit('notify', text, 'info', 6000, 'ОК', () => {
         this.nextDay()
       })
-    },
-    onClickEditBtn(item) {
-      this.editDialog = true
-      this.selectedItem = item
-    },
-    onClickAddBtn() {
-      this.createDialog = true
-    },
-    onClickDeleteBtn(item) {
-      this.loading = true
-      API.fetchDelete(item.id).then(response => {
-        if (response && response.status === 200) {
-          let index = this.items.indexOf(item)
-          this.items.splice(index, 1);
-          this.$root.$emit('notify', 'Урок удален', 'success', 2000)
-        }
-      }).finally(() => this.loading = false)
-    },
-    onDestroyCreateDialog() {
-      this.createDialog = false
-    },
-    onDestroyDetailsDialog() {
-      this.detailsDialog = false
-    },
-    onDestroyEditDialog() {
-      this.editDialog = false
     },
     onReload(date) {
       if (date === null) return
