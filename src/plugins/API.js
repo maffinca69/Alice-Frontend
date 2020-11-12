@@ -11,6 +11,21 @@ export default {
     init(self) {
         this.self = self
     },
+    fetchInfo(date) {
+        return api.get('/info?date=' + date).catch(error => {
+            this.handleError(error)
+        })
+    },
+    fetchUpdateInfo(item) {
+        return api.put('/info/update', item).catch(error => {
+            this.handleError(error)
+        })
+    },
+    fetchCreateInfo(item) {
+        return api.post('/info/create', item).catch(error => {
+            this.handleError(error)
+        })
+    },
     fetchGet(date) {
         return api.get('/list?date=' + date).catch(error => {
             this.handleError(error)

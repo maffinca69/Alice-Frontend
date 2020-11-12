@@ -4,10 +4,21 @@
       color="primary"
       dark
   >
-    <div class="d-flex align-center">
-      <v-toolbar-title class="font-weight-bold text-capitalize">
-        {{ currentDay }}
-      </v-toolbar-title>
+    <ModalInfo
+        :text="text"
+        :date="date"
+        :show="modalInfo"
+        :action="infoId === null ? 'create' : 'update'"
+        :id="infoId"
+        @destroy="modalInfo = false"
+        @update="updateInfo">
+    </ModalInfo>
+    <div class="d-flex">
+      <div class="flex-column">
+        <v-toolbar-title class="font-weight-bold text-capitalize">{{ currentDay }}</v-toolbar-title>
+        <small>{{ text }}</small>
+      </div>
+
       <v-menu
           rounded="lg"
           ref="menu"
@@ -39,6 +50,11 @@
     </div>
     <v-spacer></v-spacer>
     <v-icon
+        @click="openInfoModal"
+        class="ms-2">
+      mdi-pencil
+    </v-icon>
+    <v-icon
         v-if="isMobile"
         class="ms-2"
         @click="onClickAddBtn"
@@ -56,11 +72,16 @@ import 'dayjs/locale/ru'
 import SettingsMenu from "@/components/Header/SettingsMenu"; // load on demand
 
 import {isMobile} from 'mobile-device-detect';
+import API from "@/plugins/API";
+import ModalInfo from "@/components/Modals/ModalInfo";
 
 export default {
   name: "Header",
-  components: {SettingsMenu},
+  components: {ModalInfo, SettingsMenu},
   props: ['title'],
+  mixins: [
+    API
+  ],
   watch: {
     title: function (val) {
       this.currentDay = dayjs(val).locale('ru').format(dates.FORMAT_DAY)
@@ -75,16 +96,37 @@ export default {
     date: null,
     dayjs,
     currentDay: dayjs().locale('ru').format(dates.FORMAT_DAY),
-    isMobile: isMobile
+    isMobile: isMobile,
+    text: '',
+    infoId: null,
+
+    modalInfo: false,
   }),
+  mounted() {
+    this.loadInfo()
+  },
   methods: {
     load() {
       this.$refs.menu.save(this.date)
       this.currentDay = dayjs(this.date).locale('ru').format(dates.FORMAT_DAY)
       this.$emit('date-change', this.date)
+      this.loadInfo()
+    },
+    loadInfo() {
+      API.fetchInfo(this.date || dayjs().format(dates.FORMAT_FULL_DATE)).then(response => {
+        console.log(response)
+        this.text = response.data.response
+        this.infoId = response.data.id
+      })
     },
     onClickAddBtn() {
       this.$emit('add')
+    },
+    openInfoModal() {
+      this.modalInfo = true
+    },
+    updateInfo(value) {
+      this.text = value
     }
   }
 }
