@@ -192,7 +192,7 @@ export default {
     },
     sortItems() {
       this.items.sort((a, b) => {
-        return dayjs(new Date(a.time_start)).diff(new Date(b.time_start))
+        return dayjs(new Date(a.time_start)).diff(dayjs(new Date(b.time_start)))
       });
     },
     previousDay() {

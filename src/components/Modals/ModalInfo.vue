@@ -109,7 +109,7 @@ export default {
         this.closeDialog()
         this.$emit('update', this.textLocal)
         this.$refs.form.reset();
-
+        this.$root.$emit('notify', 'Информация успешно обновлена!', 'info', 6000, 'ОК')
       })
     },
     fetchCreate() {
@@ -121,6 +121,7 @@ export default {
       API.fetchCreateInfo(item).then(() => {
         this.closeDialog()
         this.$emit('update', this.textLocal)
+        this.$root.$emit('notify', 'Информация успешно добавлена!', 'info', 6000, 'ОК')
       })
     }
   }
