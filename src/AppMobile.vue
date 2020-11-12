@@ -16,7 +16,7 @@
           {{ dayjs(item.time_end).format(dates.FORMAT_TIME) }}
         </p>
         <div class="text--primary">
-          {{ text.trimmedText(item.homework || 'Домашнего задания нет', 65) }}
+          {{ item.homework || 'Домашнего задания нет' }}
         </div>
       </v-card-text>
       <v-card-actions>

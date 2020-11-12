@@ -36,7 +36,7 @@
             </v-btn>
           </template>
           <template v-slot:item.homework="{ item }">
-            <td>{{ text.trimmedText(item.homework || '', 65) }}</td>
+            <td>{{ text.trimmedText(item.homework || '', 120) }}</td>
           </template>
           <template v-slot:item.time_start="{ item }">
             <td>{{ dayjs(item.time_start).format(dates.FORMAT_TIME) }}</td>
