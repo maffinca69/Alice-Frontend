@@ -61,8 +61,5 @@ export default {
       this.$emit('destroy')
     }
   },
-  mounted() {
-    console.log(this.show)
-  }
 }
 </script>

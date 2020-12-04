@@ -48,9 +48,6 @@ export default {
     dates,
     text
   }),
-  mounted() {
-    console.log(this.items)
-  },
   methods: {
     edit(item) {
       this.$emit('edit', item)

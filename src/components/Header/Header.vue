@@ -40,7 +40,6 @@
         <v-date-picker
             v-model="date"
             locale="RU"
-            @click="console.log(123)"
             first-day-of-week="1"
             elevation="16"
             no-title
@@ -114,7 +113,6 @@ export default {
     },
     loadInfo() {
       API.fetchInfo(this.date || dayjs().format(dates.FORMAT_FULL_DATE)).then(response => {
-        console.log(response)
         this.text = response.data.response
         this.infoId = response.data.id
       })

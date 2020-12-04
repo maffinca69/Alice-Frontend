@@ -46,6 +46,16 @@ export default {
             this.handleError(error)
         })
     },
+    fetchCopySchedule(data) {
+        return api.post('/copy-schedule', data).catch(error => {
+            this.handleError(error)
+        })
+    },
+    fetchClearDay(date) {
+        return api.delete('/clear-day?date=' + date).catch(error => {
+            this.handleError(error)
+        })
+    },
     handleError(error) {
         if (!error.response) {
             return this.self.$root.$emit('notify',

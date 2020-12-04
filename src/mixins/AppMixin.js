@@ -10,6 +10,8 @@ export default {
         confirmDeleteDialog: false,
         loading: false,
         selectedItem: null,
+        datesForCopy: [],
+        modalDateForCopy: false,
         mixinsItems: [],
         selectedDate: dayjs().format(dates.FORMAT_FULL_DATE),
     }),
@@ -19,6 +21,9 @@ export default {
             this.selectedItem = item
         },
         onClickAddBtn() {
+            this.createDialog = true
+        },
+        onClickCopyBtn() {
             this.createDialog = true
         },
         onClickDeleteBtn(item) {
@@ -67,6 +72,40 @@ export default {
             }).finally(() => {
                 this.loading = false
                 this.createDialog = false
+            })
+        },
+        saveDateForCopy() {
+            this.$refs.dialog.save(this.datesForCopy)
+            if (this.datesForCopy.length === 1) {
+                this.datesForCopy.push(this.datesForCopy[0])
+            }
+            this.datesForCopy.sort((a, b) => {
+                return dayjs(new Date(a)).diff(dayjs(new Date(b)))
+            });
+        },
+        copySchedule() {
+            if (!this.datesForCopy.length) {
+                this.modalDateForCopy = false
+                return
+            }
+            this.saveDateForCopy()
+            let data = {
+                items: this.items,
+                dates: this.datesForCopy
+            }
+            API.fetchCopySchedule(data).then(response => {
+                this.$root.$emit('notify', response.data.message, 'success', 2000)
+            }).finally(() => {
+                this.loading = false;
+            })
+        },
+        clearDay() {
+            this.loading = true
+            API.fetchClearDay(this.selectedDate).then(response => {
+                this.$root.$emit('notify', response.data.message, 'success', 2000)
+                this.items = []
+            }).finally(() => {
+               this.loading = false;
             })
         },
         onDestroyCreateDialog() {
