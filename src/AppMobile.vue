@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div v-if="!this.items.length">
-      <!--Сверстать блок, когда нет уроков-->
-    </div>
     <v-card
         outlined
         class="mx-auto mt-4"
