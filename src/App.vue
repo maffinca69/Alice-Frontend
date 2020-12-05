@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <Header @date-change="onReload" :title="title" @add="onClickAddBtn"/>
+    <Header @date-change="onReload" @loading="loading = !loading" :title="title" @add="onClickAddBtn"/>
 
     <v-main class="mt-1">
 
@@ -57,76 +57,6 @@
               </v-icon>
               Добавить
             </v-btn>
-            <v-menu offset-y >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                    :disabled="loading"
-                    color="primary"
-                    class="ms-2"
-                    dark
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  <v-icon
-                      dark
-                      left
-                  >
-                    mdi-menu
-                  </v-icon>
-                  Меню
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item>
-                  <v-dialog
-                      ref="dialog"
-                      v-model="modalDateForCopy"
-                      :return-value.sync="datesForCopy"
-                      width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                          :disabled="items.length === 0"
-                          text
-                          class="btn"
-                          v-bind="attrs"
-                          v-on="on"
-                      >Копировать расписание</v-btn>
-                    </template>
-                    <v-date-picker
-                        v-model="datesForCopy"
-                        locale="RU"
-                        first-day-of-week="1"
-                        elevation="16"
-                        scrollable
-                        range
-                    >
-                      <v-spacer></v-spacer>
-                      <v-btn
-                          text
-                          color="primary"
-                          @click="modalDateForCopy = false"
-                      >
-                        Отмена
-                      </v-btn>
-                      <v-btn
-                          text
-                          color="primary"
-                          @click="copySchedule"
-                      >
-                        OK
-                      </v-btn>
-                    </v-date-picker>
-                  </v-dialog>
-                </v-list-item>
-                <v-list-item>
-                  <v-btn @click="clearDay" text class="btn"
-                         :disabled="items.length === 0">
-                    Очистить день
-                  </v-btn>
-                </v-list-item>
-              </v-list>
-            </v-menu>
 
           </v-layout>
           <v-layout row justify-end class="me-6">
@@ -225,6 +155,17 @@ export default {
     dates,
     text,
     dayjs,
+    copyScheduleItems: [
+      ['На неделю'],
+      ['На месяц'],
+      ['На год'],
+    ],
+    cruds: [
+      ['Create', 'mdi-plus-outline'],
+      ['Read', 'mdi-file-outline'],
+      ['Update', 'mdi-update'],
+      ['Delete', 'mdi-delete'],
+    ],
     title: dayjs().locale('ru').format(dates.FORMAT_DAY),
     headers: [
       {text: 'Урок', value: 'name', width: 300},
@@ -237,6 +178,7 @@ export default {
     items: []
   }),
   methods: {
+    allowedDatesForRange: val => [0,1].includes(dayjs(val).day()),
     load(date) {
       let dateLoading = date === undefined ?
           dayjs().format(dates.FORMAT_FULL_DATE) :
