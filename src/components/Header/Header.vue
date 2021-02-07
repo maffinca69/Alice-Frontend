@@ -246,6 +246,9 @@ export default {
       this.clearDay(type)
       this.$refs.modalName.closeModal()
     },
+    openPicker() {
+      this.menu = true
+    }
   }
 }
 </script>

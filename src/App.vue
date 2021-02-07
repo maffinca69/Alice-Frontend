@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <Header @date-change="onReload" @loading="loading = !loading" :title="title" @add="onClickAddBtn"/>
+    <Header ref="header" @date-change="onReload" @loading="loading = !loading" :title="title" @add="onClickAddBtn"/>
 
     <v-main class="mt-1">
 
@@ -9,13 +9,21 @@
 
       <div v-if="isMobile">
         <app-mobile
+            v-if="items.length"
             :items="items"
             @edit="onClickEditBtn"
             @delete="onClickDeleteBtn"
         />
+        <div v-else>
+          <center>
+            <v-toolbar-title class="pa-3">{{ emptyText }}</v-toolbar-title>
+            <br>
+            <v-btn color="green" text outlined @click="openCalendar">Выбрать дату</v-btn>
+          </center>
+        </div>
       </div>
 
-      <div v-else>
+      <div v-else-if="items.length">
         <v-data-table
             disable-filtering
             loading-text="Расписание загружается..."
@@ -72,6 +80,13 @@
             </v-btn>
           </v-layout>
         </v-layout>
+      </div>
+      <div v-else>
+        <center>
+          <v-toolbar-title class="pa-3">{{ emptyText }}</v-toolbar-title>
+          <br>
+          <v-btn color="green" text outlined @click="openCalendar">Выбрать дату</v-btn>
+        </center>
       </div>
 
       <ModalEdit
@@ -153,6 +168,7 @@ export default {
   },
   data: () => ({
     dates,
+    emptyText: 'Нет уроков на этот день',
     text,
     dayjs,
     copyScheduleItems: [
@@ -180,6 +196,7 @@ export default {
   methods: {
     allowedDatesForRange: val => [0,1].includes(dayjs(val).day()),
     load(date) {
+      this.emptyText = 'Загружаю...'
       let dateLoading = date === undefined ?
           dayjs().format(dates.FORMAT_FULL_DATE) :
           dayjs(date).format(dates.FORMAT_FULL_DATE)
@@ -188,6 +205,10 @@ export default {
       return API.fetchGet(dateLoading).then(response => {
         if (response && response.status === 200) {
           this.items = response.data.data;
+        }
+
+        if (!this.items.length) {
+          this.emptyText = 'Нет уроков на этот день'
         }
       }).finally(() => this.loading = false)
     },
@@ -274,6 +295,9 @@ export default {
       this.selectedDate = date
       this.load(date)
     },
+    openCalendar() {
+      this.$refs.header.openPicker()
+    }
   }
 };
 </script>
