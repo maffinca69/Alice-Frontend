@@ -5,15 +5,6 @@
         color="primary"
         dark
     >
-      <ModalInfo
-          :text="text"
-          :date="date"
-          :show="modalInfo"
-          :action="infoId === null ? 'create' : 'update'"
-          :id="infoId"
-          @destroy="modalInfo = false"
-          @update="updateInfo">
-      </ModalInfo>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <div class="d-flex">
         <div class="flex-column">
@@ -88,16 +79,48 @@
             </v-list-item>
           </v-list-group>
         </v-list-group>
-        <v-list-item link @click="clearDay()">
-          <v-list-item-title>
-            <v-icon>
-              mdi-delete
-            </v-icon>
-            Очистить день
-          </v-list-item-title>
-        </v-list-item>
+        <v-list-group no-action prepend-icon="mdi-delete">
+          <template v-slot:activator>
+            <v-list-item-title>Очистка</v-list-item-title>
+          </template>
+          <v-list-item @click="openModal(1)">
+            <v-list-item-title>
+              Очистить день
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="openModal(2)">
+            <v-list-item-title>
+              Очистить неделю
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="openModal(3)">
+            <v-list-item-title>
+              Очистить месяц
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="openModal(4)">
+            <v-list-item-title>
+              Очистить год
+            </v-list-item-title>
+          </v-list-item>
+
+        </v-list-group>
       </v-list>
     </v-navigation-drawer>
+    <modal ref="modalName">
+      <template v-slot:header>
+        Очистка
+      </template>
+
+      <template v-slot:body>
+        <p>{{ getTextByType(deleteType) }}</p>
+      </template>
+
+      <template v-slot:footer>
+        <v-btn color="red" text @click="$refs.modalName.closeModal()">Закрыть</v-btn>
+        <v-btn color="green" text @click="clearDayModalClose(deleteType)">Да</v-btn>
+      </template>
+    </modal>
   </div>
 
 </template>
@@ -107,14 +130,14 @@ import dates from "@/utils/dates";
 import dayjs from "dayjs";
 import 'dayjs/locale/ru'
 import SettingsMenu from "@/components/Header/SettingsMenu"; // load on demand
+import Modal from "@/components/Modals/Modal"; // load on demand
 
 import {isMobile} from 'mobile-device-detect';
 import API from "@/plugins/API";
-import ModalInfo from "@/components/Modals/ModalInfo";
 
 export default {
   name: "Header",
-  components: {ModalInfo, SettingsMenu},
+  components: {SettingsMenu, Modal},
   props: ['title'],
   mixins: [
     API
@@ -134,6 +157,7 @@ export default {
       ['На месяц', 2],
       ['На год', 3],
     ],
+    deleteType: 1,
     drawer: false,
     menu: false,
     date: null,
@@ -150,6 +174,26 @@ export default {
     this.loadInfo()
   },
   methods: {
+    getTextByType(type) {
+      let unitDay = 'day'
+
+      switch (type) {
+        case 1:
+          return 'Очистить расписание на сегодня?';
+        case 2:
+            unitDay = 'week'
+          break
+        case 3:
+            unitDay = 'month'
+          break
+        case 4:
+            unitDay = 'year'
+          break
+      }
+
+      return 'Очистить расписание с ' + dayjs(this.selectedDate).format('DD.MM.YYYY') + ' до ' + dayjs(this.selectedDate).endOf(unitDay).format('DD.MM.YYYY') + '?';
+
+    },
     load() {
       this.$refs.menu.save(this.date)
       this.selectedDate = dayjs(this.date).format(dates.FORMAT_FULL_DATE)
@@ -185,14 +229,22 @@ export default {
         this.$emit('loading')
       })
     },
-    clearDay() {
+    clearDay(type) {
       this.$emit('loading')
       this.drawer = false;
-      API.fetchClearDay(this.selectedDate).then(response => {
+      API.fetchClearDay(this.selectedDate, type).then(response => {
         this.$root.$emit('notify', response.data.message, 'success', 2000)
       }).finally(() => {
         this.$emit('loading')
       })
+    },
+    openModal(type) {
+      this.deleteType = type
+      this.$refs.modalName.openModal()
+    },
+    clearDayModalClose(type) {
+      this.clearDay(type)
+      this.$refs.modalName.closeModal()
     },
   }
 }

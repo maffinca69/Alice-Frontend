@@ -51,8 +51,8 @@ export default {
             this.handleError(error)
         })
     },
-    fetchClearDay(date) {
-        return api.delete('/clear-day?date=' + date).catch(error => {
+    fetchClearDay(date, type) {
+        return api.delete('/clear-day?date=' + date + '&type=' + type).catch(error => {
             this.handleError(error)
         })
     },
