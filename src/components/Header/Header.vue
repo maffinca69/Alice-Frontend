@@ -107,6 +107,15 @@
         </v-list-group>
       </v-list>
     </v-navigation-drawer>
+    <ModalInfo
+        :text="text"
+        :date="date"
+        :show="modalInfo"
+        :action="infoId === null ? 'create' : 'update'"
+        :id="infoId"
+        @destroy="modalInfo = false"
+        @update="updateInfo">
+    </ModalInfo>
     <modal ref="modalName">
       <template v-slot:header>
         Очистка
@@ -131,13 +140,14 @@ import dayjs from "dayjs";
 import 'dayjs/locale/ru'
 import SettingsMenu from "@/components/Header/SettingsMenu"; // load on demand
 import Modal from "@/components/Modals/Modal"; // load on demand
+import ModalInfo from "@/components/Modals/ModalInfo";
 
 import {isMobile} from 'mobile-device-detect';
 import API from "@/plugins/API";
 
 export default {
   name: "Header",
-  components: {SettingsMenu, Modal},
+  components: {SettingsMenu, Modal, ModalInfo},
   props: ['title'],
   mixins: [
     API

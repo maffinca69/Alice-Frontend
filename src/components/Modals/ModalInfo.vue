@@ -16,7 +16,6 @@
           <v-col>
             <v-form ref="form">
               <v-text-field
-                  :rules="[ rules.required(textLocal) ]"
                   placeholder="Важная информация"
                   hint="Например: продленка до 13:45"
                   persistent-hint
