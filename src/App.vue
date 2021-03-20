@@ -176,12 +176,6 @@ export default {
       ['На месяц'],
       ['На год'],
     ],
-    cruds: [
-      ['Create', 'mdi-plus-outline'],
-      ['Read', 'mdi-file-outline'],
-      ['Update', 'mdi-update'],
-      ['Delete', 'mdi-delete'],
-    ],
     title: dayjs().locale('ru').format(dates.FORMAT_DAY),
     headers: [
       {text: 'Урок', value: 'name', width: 300},
@@ -219,11 +213,11 @@ export default {
 
       return {
         id: 'id' in source ? source.id : 0,
-        time_start: dayjs()
+        time_start: dayjs(this.selectedDate)
             .set('hour', startSplit[0])
             .set('minute', startSplit[1])
             .format(dates.FORMAT_FULL_DATE),
-        time_end: dayjs()
+        time_end: dayjs(this.selectedDate)
             .set('hour', endSplit[0])
             .set('minute', endSplit[1])
             .format(dates.FORMAT_FULL_DATE),
